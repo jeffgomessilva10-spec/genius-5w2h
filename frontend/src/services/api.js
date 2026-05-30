@@ -104,4 +104,26 @@ export const documentAPI = {
   delete: (id)         => api.delete(`/documents/${id}`),
 };
 
+export const okrAPI = {
+  list:           (params)            => api.get('/okr', { params }),
+  create:         (data)              => api.post('/okr', data),
+  delete:         (id)                => api.delete(`/okr/${id}`),
+  createKR:       (objectiveId, data) => api.post(`/okr/${objectiveId}/key-results`, data),
+  updateKR:       (id, data)          => api.patch(`/okr/key-results/${id}`, data),
+  linkActivity:   (krId, activityId)  => api.post(`/okr/key-results/${krId}/link-activity`, { activityId }),
+};
+
+export const pdcaAPI = {
+  list:          (params) => api.get('/pdca', { params }),
+  createReview:  (data)   => api.post('/pdca/reviews', data),
+  deleteReview:  (id)     => api.delete(`/pdca/reviews/${id}`),
+  createLesson:  (data)   => api.post('/pdca/lessons', data),
+  deleteLesson:  (id)     => api.delete(`/pdca/lessons/${id}`),
+};
+
+export const aiAPI = {
+  validate: (activity)             => api.post('/ai/validate', activity),
+  suggest:  (field, value, ctx)    => api.post('/ai/suggest', { field, value, context: ctx }),
+};
+
 export default api;

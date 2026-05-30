@@ -10,6 +10,8 @@ import ProjectsPage from './pages/ProjectsPage';
 import UsersPage from './pages/UsersPage';
 import GanttPage from './pages/GanttPage';
 import DocumentsPage from './pages/DocumentsPage';
+import OKRPage from './pages/OKRPage';
+import PdcaPage from './pages/PdcaPage';
 import './styles/globals.css';
 
 // Guard: só autenticados
@@ -63,6 +65,12 @@ export default function App() {
           } />
           <Route path="/documents" element={
             <CollaboratorRoute><DocumentsPage /></CollaboratorRoute>
+          } />
+          <Route path="/okr" element={
+            <CollaboratorRoute><OKRPage /></CollaboratorRoute>
+          } />
+          <Route path="/pdca" element={
+            <CollaboratorRoute><PdcaPage /></CollaboratorRoute>
           } />
           <Route path="/activities/new" element={
             <CollaboratorRoute><ActivityForm /></CollaboratorRoute>

@@ -18,6 +18,9 @@ const raciRoutes       = require('./routes/raci.routes');
 const timeEntryRoutes  = require('./routes/timeentry.routes');
 const attachmentRoutes = require('./routes/attachment.routes');
 const documentRoutes   = require('./routes/document.routes');
+const okrRoutes        = require('./routes/okr.routes');
+const pdcaRoutes       = require('./routes/pdca.routes');
+const aiRoutes         = require('./routes/ai.routes');
 
 const app = express();
 
@@ -62,6 +65,9 @@ app.use('/api/activities/:activityId/attachments',  attachmentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/audit',         auditRoutes);
 app.use('/api/documents',     documentRoutes);
+app.use('/api/okr',           okrRoutes);
+app.use('/api/pdca',          pdcaRoutes);
+app.use('/api/ai',            aiRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -84,6 +84,9 @@ model User {
   timeEntries       TimeEntry[]
   attachments       Attachment[]
   documents         Document[]
+  objectives        Objective[]
+  pdcaReviews       PdcaReview[]
+  lessons           LessonLearned[]
 
   @@map("users")
 }
@@ -105,6 +108,9 @@ model Project {
   users       ProjectUser[]
   auditLogs   AuditLog[]
   documents   Document[]
+  objectives  Objective[]
+  pdcaReviews PdcaReview[]
+  lessons     LessonLearned[]
 
   @@map("projects")
 }
@@ -178,8 +184,8 @@ model Activity {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  responsible   User?          @relation(fields: [responsibleId], references: [id])
+  category      Category           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  responsible   User?              @relation(fields: [responsibleId], references: [id])
   notifications Notification[]
   comments      Comment[]
   auditLogs     AuditLog[]
@@ -187,6 +193,7 @@ model Activity {
   timeEntries   TimeEntry[]
   attachments   Attachment[]
   documents     Document[]
+  keyResults    ActivityKeyResult[]
 
   @@map("activities")
 }
@@ -227,6 +234,111 @@ model AuditLog {
   project    Project?    @relation(fields: [entityId], references: [id], map: "audit_project_fk")
 
   @@map("audit_logs")
+}
+
+// ─────────────────────────────────────────
+// ENUM: Fases PDCA
+// ─────────────────────────────────────────
+enum PdcaPhase {
+  PLAN
+  DO
+  CHECK
+  ACT
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Objetivo (OKR)
+// ─────────────────────────────────────────
+model Objective {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  projectId   String    @map("project_id")
+  targetDate  DateTime? @map("target_date")
+  progress    Decimal   @default(0)   // 0-100
+  isActive    Boolean   @default(true) @map("is_active")
+  createdById String    @map("created_by_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  project    Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy  User        @relation(fields: [createdById], references: [id])
+  keyResults KeyResult[]
+
+  @@map("objectives")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Resultado-Chave (OKR)
+// ─────────────────────────────────────────
+model KeyResult {
+  id          String    @id @default(uuid())
+  objectiveId String    @map("objective_id")
+  title       String
+  unit        String    @default("%")  // %, R$, unidades, etc.
+  targetValue Decimal   @map("target_value")
+  currentValue Decimal  @default(0) @map("current_value")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  objective   Objective            @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  activities  ActivityKeyResult[]
+
+  @@map("key_results")
+}
+
+// ─────────────────────────────────────────
+// JUNÇÃO: Atividade ↔ Resultado-Chave
+// ─────────────────────────────────────────
+model ActivityKeyResult {
+  activityId  String @map("activity_id")
+  keyResultId String @map("key_result_id")
+
+  activity  Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  keyResult KeyResult @relation(fields: [keyResultId], references: [id], onDelete: Cascade)
+
+  @@id([activityId, keyResultId])
+  @@map("activity_key_results")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Revisão PDCA
+// ─────────────────────────────────────────
+model PdcaReview {
+  id          String    @id @default(uuid())
+  projectId   String    @map("project_id")
+  phase       PdcaPhase
+  title       String
+  description String
+  actionItems String?   @map("action_items")
+  createdById String    @map("created_by_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy User    @relation(fields: [createdById], references: [id])
+
+  @@map("pdca_reviews")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Lição Aprendida
+// ─────────────────────────────────────────
+model LessonLearned {
+  id          String   @id @default(uuid())
+  projectId   String   @map("project_id")
+  title       String
+  description String
+  category    String   @default("Geral")  // Técnico, Processo, Equipe, etc.
+  impact      String?
+  recommendation String?
+  createdById String   @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy User    @relation(fields: [createdById], references: [id])
+
+  @@map("lessons_learned")
 }
 
 // ─────────────────────────────────────────
