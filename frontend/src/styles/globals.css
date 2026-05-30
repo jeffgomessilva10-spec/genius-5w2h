@@ -218,17 +218,72 @@ a:hover { opacity: 0.8; }
 .text-danger  { color: #DC2626; }
 .text-success { color: #16A34A; }
 
-/* ── Responsivo ─────────────────────────────────── */
-@media (max-width: 768px) {
-  /* Padding reduzido em telas pequenas */
-  .mobile-pad { padding: 16px !important; }
+/* ── Responsivo Mobile-First ────────────────────── */
 
-  /* Cards empilhados */
-  .mobile-stack {
+/* Scroll horizontal seguro para tabelas e Gantt */
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Touch targets mínimos (WCAG 2.5.5) */
+@media (max-width: 768px) {
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Formulários empilhados */
+  .form-grid-2 {
     grid-template-columns: 1fr !important;
   }
 
-  /* Texto menor */
-  h1 { font-size: 1.6rem !important; }
-  h2 { font-size: 1.3rem !important; }
+  /* Padding reduzido */
+  .page-pad { padding: 16px !important; }
+
+  /* Cards empilhados */
+  .grid-auto { grid-template-columns: 1fr !important; }
+
+  /* Texto adaptado */
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.2rem; }
+
+  /* Topbar compacta */
+  .topbar-title { font-size: 0.9rem !important; }
+
+  /* Tabelas: scroll horizontal */
+  table { display: block; overflow-x: auto; white-space: nowrap; }
+
+  /* Filtros empilhados */
+  .filter-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .filter-row .input,
+  .filter-row .btn {
+    width: 100% !important;
+  }
+
+  /* KPI cards em 2 colunas no mobile */
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Gantt: esconde coluna de labels longa */
+  .gantt-label {
+    width: 120px !important;
+    min-width: 120px !important;
+  }
+
+  /* Textos de ação (editar/excluir) sempre visíveis */
+  .action-btn {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* Modal/Drawer full-width no mobile */
+  .modal-content {
+    width: calc(100vw - 32px) !important;
+    max-height: 90vh !important;
+  }
 }
