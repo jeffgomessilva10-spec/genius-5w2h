@@ -6,6 +6,7 @@ import ManagerDashboard from './pages/ManagerDashboard';
 import ClientDashboard from './pages/ClientDashboard';
 import ProjectPage from './pages/ProjectPage';
 import ActivityForm from './pages/ActivityForm';
+import ProjectsPage from './pages/ProjectsPage';
 import './styles/globals.css';
 
 // Guard: só autenticados
@@ -44,6 +45,9 @@ export default function App() {
           {/* Colaboradores / Admin */}
           <Route path="/dashboard" element={
             <CollaboratorRoute><ManagerDashboard /></CollaboratorRoute>
+          } />
+          <Route path="/projects" element={
+            <CollaboratorRoute><ProjectsPage /></CollaboratorRoute>
           } />
           <Route path="/projects/:id" element={
             <PrivateRoute><ProjectPage /></PrivateRoute>
