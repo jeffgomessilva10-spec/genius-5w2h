@@ -1,4 +1,4 @@
-// Genius Consultoria – Plano de Ação 5W2H
+// Genius Consultoria – Plano de Ação 5W2H (v2)
 // Prisma Schema for PostgreSQL
 
 generator client {
@@ -10,55 +10,62 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─────────────────────────────────────────
-// ENUM: papel do usuário no sistema
-// ─────────────────────────────────────────
 enum Role {
-  COLLABORATOR   // interno: cria/edita atividades
-  CLIENT         // externo: somente visualiza
-  ADMIN          // acesso total
+  COLLABORATOR
+  CLIENT
+  ADMIN
 }
 
-// ─────────────────────────────────────────
-// ENUM: status da atividade 5W2H
-// ─────────────────────────────────────────
 enum ActivityStatus {
-  PLANNED       // planejado
-  IN_PROGRESS   // em andamento
-  DELAYED       // atrasado
-  DONE          // finalizado
+  PLANNED
+  IN_PROGRESS
+  DELAYED
+  DONE
 }
 
-// ─────────────────────────────────────────
-// ENUM: tipo de notificação enviada
-// ─────────────────────────────────────────
 enum NotificationType {
-  DEADLINE_WARNING   // aviso de prazo próximo
-  DEADLINE_EXCEEDED  // prazo ultrapassado
-  STATUS_CHANGE      // mudança de status
-  RISK_ALERT         // alerta de risco
+  DEADLINE_WARNING
+  DEADLINE_EXCEEDED
+  STATUS_CHANGE
+  RISK_ALERT
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  STATUS_CHANGE
+  LOGIN
 }
 
 // ─────────────────────────────────────────
 // ENTIDADE: Usuário
 // ─────────────────────────────────────────
 model User {
-  id            String    @id @default(uuid())
-  name          String
-  email         String    @unique
-  passwordHash  String    @map("password_hash")
-  role          Role      @default(COLLABORATOR)
-  avatarUrl     String?   @map("avatar_url")
-  phone         String?                       // WhatsApp/celular
-  isActive      Boolean   @default(true) @map("is_active")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role     @default(COLLABORATOR)
+  avatarUrl    String?  @map("avatar_url")
+  phone        String?
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  // Relações
-  activities          Activity[]      // atividades onde é responsável
-  projects            ProjectUser[]   // projetos acessíveis (clientes)
-  notifications       Notification[]
-  notificationsSent   Notification[]  @relation("SentNotifications")
+  activities        Activity[]
+  projects          ProjectUser[]
+  notifications     Notification[]
+  notificationsSent Notification[]  @relation("SentNotifications")
+  comments          Comment[]
+  auditLogs         AuditLog[]
 
   @@map("users")
 }
@@ -76,43 +83,39 @@ model Project {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  // Relações
   categories  Category[]
-  users       ProjectUser[]   // clientes vinculados
+  users       ProjectUser[]
+  auditLogs   AuditLog[]
 
   @@map("projects")
 }
 
-// ─────────────────────────────────────────
-// TABELA DE JUNÇÃO: Projeto ↔ Usuário (clientes)
-// ─────────────────────────────────────────
 model ProjectUser {
-  projectId   String   @map("project_id")
-  userId      String   @map("user_id")
-  assignedAt  DateTime @default(now()) @map("assigned_at")
+  projectId  String   @map("project_id")
+  userId     String   @map("user_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
 
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([projectId, userId])
   @@map("project_users")
 }
 
 // ─────────────────────────────────────────
-// ENTIDADE: Categoria (áreas do 5W2H)
-//   Ex.: Site, Rede Social, Vendas, etc.
+// ENTIDADE: Categoria
 // ─────────────────────────────────────────
 model Category {
-  id          String    @id @default(uuid())
-  name        String                    // Nome da categoria
+  id          String   @id @default(uuid())
+  name        String
   description String?
-  color       String?   @default("#F5C500") // cor para UI
-  projectId   String    @map("project_id")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  color       String?  @default("#F04E00")
+  projectId   String   @map("project_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  activities  Activity[]
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  activities Activity[]
 
   @@map("categories")
 }
@@ -121,63 +124,108 @@ model Category {
 // ENTIDADE: Atividade (núcleo do 5W2H)
 // ─────────────────────────────────────────
 model Activity {
-  id           String         @id @default(uuid())
+  id   String @id @default(uuid())
+  code String
 
-  // Identificador legível tipo "1.3"
-  code         String
+  // ── 5W2H ──────────────────────
+  what      String
+  why       String
+  who       String
+  where     String
+  how       String
+  howMuch   Decimal?  @map("how_much")    // Custo estimado
+  whenStart DateTime? @map("when_start")
+  whenEnd   DateTime? @map("when_end")
+  // ──────────────────────────────
 
-  // ── 5W2H ──────────────────────────────
-  what         String                    // O quê (descrição da tarefa)
-  why          String                    // Por quê (motivo/benefício)
-  who          String                    // Quem (responsável)
-  where        String                    // Onde (local/modo)
-  how          String                    // Como (método)
-  howMuch      Decimal?  @map("how_much") // Quanto (custo estimado)
-  whenStart    DateTime? @map("when_start") // Data de início
-  whenEnd      DateTime? @map("when_end")   // Data de fim/prazo
-  // ──────────────────────────────────────
+  status        ActivityStatus @default(PLANNED)
+  notes         String?
 
-  status       ActivityStatus @default(PLANNED)
-  risk         String?                   // Risco se não concluída
-  notes        String?                   // Observações adicionais
+  // ── Financeiro ampliado ────────
+  actualCost    Decimal? @map("actual_cost")     // Custo realizado
+  plannedHours  Decimal? @map("planned_hours")   // Horas planejadas
+  actualHours   Decimal? @map("actual_hours")    // Horas realizadas
 
-  categoryId   String    @map("category_id")
-  responsibleId String?  @map("responsible_id") // FK para User
+  // ── Matriz de riscos ───────────
+  risk              String?    // Descrição do risco
+  riskProbability   Int?       @map("risk_probability")  // 1-5
+  riskImpact        Int?       @map("risk_impact")       // 1-5
+  riskLevel         RiskLevel? @map("risk_level")        // calculado
+  riskMitigation    String?    @map("risk_mitigation")   // ação mitigadora
 
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  categoryId    String  @map("category_id")
+  responsibleId String? @map("responsible_id")
 
-  // Relações
-  category     Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  responsible  User?          @relation(fields: [responsibleId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  responsible   User?          @relation(fields: [responsibleId], references: [id])
   notifications Notification[]
+  comments      Comment[]
+  auditLogs     AuditLog[]
 
   @@map("activities")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Comentário (com @menção)
+// ─────────────────────────────────────────
+model Comment {
+  id         String   @id @default(uuid())
+  content    String
+  activityId String   @map("activity_id")
+  authorId   String   @map("author_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  author   User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Log de Auditoria
+// ─────────────────────────────────────────
+model AuditLog {
+  id         String      @id @default(uuid())
+  action     AuditAction
+  entity     String      // "Activity", "Project", "User", etc.
+  entityId   String      @map("entity_id")
+  userId     String      @map("user_id")
+  before     Json?       // estado anterior
+  after      Json?       // estado posterior
+  ipAddress  String?     @map("ip_address")
+  createdAt  DateTime    @default(now()) @map("created_at")
+
+  user       User        @relation(fields: [userId], references: [id])
+  activity   Activity?   @relation(fields: [entityId], references: [id], map: "audit_activity_fk")
+  project    Project?    @relation(fields: [entityId], references: [id], map: "audit_project_fk")
+
+  @@map("audit_logs")
 }
 
 // ─────────────────────────────────────────
 // ENTIDADE: Notificação
 // ─────────────────────────────────────────
 model Notification {
-  id           String           @id @default(uuid())
-  type         NotificationType
-  title        String
-  message      String
-  isRead       Boolean          @default(false) @map("is_read")
-  sentAt       DateTime?        @map("sent_at")  // quando foi enviado por email/push
-  createdAt    DateTime         @default(now()) @map("created_at")
+  id         String           @id @default(uuid())
+  type       NotificationType
+  title      String
+  message    String
+  isRead     Boolean          @default(false) @map("is_read")
+  sentAt     DateTime?        @map("sent_at")
+  createdAt  DateTime         @default(now()) @map("created_at")
 
-  // Destinatário
-  userId       String           @map("user_id")
-  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String           @map("user_id")
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Remetente (sistema ou colaborador)
-  sentById     String?          @map("sent_by_id")
-  sentBy       User?            @relation("SentNotifications", fields: [sentById], references: [id])
+  sentById   String?          @map("sent_by_id")
+  sentBy     User?            @relation("SentNotifications", fields: [sentById], references: [id])
 
-  // Atividade relacionada (opcional)
-  activityId   String?          @map("activity_id")
-  activity     Activity?        @relation(fields: [activityId], references: [id], onDelete: SetNull)
+  activityId String?          @map("activity_id")
+  activity   Activity?        @relation(fields: [activityId], references: [id], onDelete: SetNull)
 
   @@map("notifications")
 }

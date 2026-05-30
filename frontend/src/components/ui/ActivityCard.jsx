@@ -1,9 +1,10 @@
 // src/components/ui/ActivityCard.jsx
 import { Link } from 'react-router-dom';
-import { Calendar, User, DollarSign, AlertTriangle, Pencil, Trash2 } from 'lucide-react';
+import { Calendar, User, DollarSign, AlertTriangle, Pencil, Trash2, MessageSquare, TrendingDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useAuth } from '../../context/AuthContext';
+import { RiskBadge } from './RiskMatrix';
 
 const STATUS_MAP = {
   PLANNED:     { label: 'Planejado',    cls: 'badge-planned'  },
@@ -77,7 +78,38 @@ export default function ActivityCard({ activity, onDelete }) {
             <span style={{ fontSize: '0.78rem' }}>{activity.risk}</span>
           </div>
         )}
+        {/* Campos financeiros ampliados */}
+        {(activity.actualCost || activity.plannedHours || activity.actualHours) && (
+          <div style={{ gridColumn: '1 / -1', display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
+            {activity.actualCost != null && (
+              <span style={{ fontSize: '0.75rem', color: '#6B7280' }}>
+                <TrendingDown size={11} style={{ display: 'inline', marginRight: 3 }} />
+                Realizado: R$ {Number(activity.actualCost).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </span>
+            )}
+            {activity.plannedHours != null && (
+              <span style={{ fontSize: '0.75rem', color: '#6B7280' }}>
+                ⏱ {Number(activity.plannedHours)}h plan. / {Number(activity.actualHours || 0)}h real.
+              </span>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Badge de risco estruturado */}
+      {(activity.riskProbability || activity.riskLevel) && (
+        <div style={{ marginTop: 10 }}>
+          <RiskBadge probability={activity.riskProbability} impact={activity.riskImpact} level={activity.riskLevel} />
+        </div>
+      )}
+
+      {/* Contador de comentários */}
+      {activity.comments?.length > 0 && (
+        <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.75rem', color: '#9CA3AF' }}>
+          <MessageSquare size={12} />
+          {activity.comments.length} comentário{activity.comments.length > 1 ? 's' : ''}
+        </div>
+      )}
     </div>
   );
 }

@@ -69,4 +69,14 @@ export const usersAPI = {
   list: (role) => api.get('/users', { params: { role } }),
 };
 
+export const commentsAPI = {
+  list:   (activityId)          => api.get(`/activities/${activityId}/comments`),
+  create: (activityId, content) => api.post(`/activities/${activityId}/comments`, { content }),
+  delete: (activityId, id)      => api.delete(`/activities/${activityId}/comments/${id}`),
+};
+
+export const auditAPI = {
+  list: (params) => api.get('/audit', { params }),
+};
+
 export default api;
