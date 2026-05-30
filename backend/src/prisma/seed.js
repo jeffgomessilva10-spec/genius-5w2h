@@ -79,14 +79,17 @@ async function main() {
 
   const createdCats = [];
   for (const cat of categories) {
-    const c = await prisma.category.create({
-      data: { ...cat, projectId: project.id },
+    const c = await prisma.category.upsert({
+      where: { id: `seed-cat-${cat.name}` },
+      update: {},
+      create: { id: `seed-cat-${cat.name}`, ...cat, projectId: project.id },
     });
     createdCats.push(c);
   }
 
   // ── Atividades de exemplo ────────────────────
   await prisma.activity.createMany({
+    skipDuplicates: true,
     data: [
       {
         code: '1.1',
