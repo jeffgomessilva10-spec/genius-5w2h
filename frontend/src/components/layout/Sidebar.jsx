@@ -106,7 +106,7 @@ export default function Sidebar() {
             <Menu size={22} />
           </button>
           <img src="/logo-branca.png" alt="Genius" style={{ height: 24, objectFit: 'contain' }} />
-          <NotificationBell />
+          <NotificationBell mobileTopbar={true} />
         </div>
 
         {/* Espaçador para o topbar fixo */}
