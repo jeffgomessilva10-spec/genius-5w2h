@@ -1,17 +1,41 @@
 // src/services/notification.service.js
 const prisma = require('../prisma/client');
 
-// ── E-mail via Brevo (Sendinblue) SMTP ──────────
-const nodemailer = require('nodemailer');
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_USER,
-    pass: process.env.BREVO_SMTP_KEY,
-  },
-});
+// ── E-mail via Brevo API HTTP ────────────────────
+const https = require('https');
+
+async function sendBrevoEmail(to, toName, subject, html) {
+  const body = JSON.stringify({
+    sender: { name: 'Genius Consultoria', email: 'jeffgomes.silva10@gmail.com' },
+    to: [{ email: to, name: toName }],
+    subject,
+    htmlContent: html,
+  });
+
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: 'api.brevo.com',
+      path: '/v3/smtp/email',
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json',
+        'content-length': Buffer.byteLength(body),
+      },
+    }, res => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) resolve(data);
+        else reject(new Error(`Brevo API: ${res.statusCode} ${data}`));
+      });
+    });
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
 
 // ── WhatsApp via Twilio ──────────────────────────
 async function sendWhatsApp(phone, message) {
@@ -42,14 +66,9 @@ async function sendNotification({ userId, type, title, message, activityId, sent
   const { email, name, phone } = notification.user;
   const whatsappMsg = `🔔 *Genius Consultoria*\n*${title}*\n\n${message}`;
 
-  // E-mail via Brevo
+  // E-mail via Brevo API
   try {
-    await transporter.sendMail({
-      from: 'Genius Consultoria <noreply@geniusconsultoria.com.br>',
-      to: email,
-      subject: `[Genius Consultoria] ${title}`,
-      html: buildEmailHtml(name, title, message),
-    });
+    await sendBrevoEmail(email, name, `[Genius Consultoria] ${title}`, buildEmailHtml(name, title, message));
     await prisma.notification.update({ where: { id: notification.id }, data: { sentAt: new Date() } });
     console.log(`[Email] Enviado para ${email}`);
   } catch (err) {
