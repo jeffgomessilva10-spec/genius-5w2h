@@ -217,3 +217,18 @@ a:hover { opacity: 0.8; }
 .text-muted   { color: var(--g-text-muted); }
 .text-danger  { color: #DC2626; }
 .text-success { color: #16A34A; }
+
+/* ── Responsivo ─────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Padding reduzido em telas pequenas */
+  .mobile-pad { padding: 16px !important; }
+
+  /* Cards empilhados */
+  .mobile-stack {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Texto menor */
+  h1 { font-size: 1.6rem !important; }
+  h2 { font-size: 1.3rem !important; }
+}

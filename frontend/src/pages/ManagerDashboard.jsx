@@ -4,6 +4,7 @@ import { projectsAPI, activitiesAPI } from '../services/api';
 import Sidebar from '../components/layout/Sidebar';
 import ActivityCard from '../components/ui/ActivityCard';
 import { Plus, FolderOpen, Search, SlidersHorizontal, Loader2, ChevronRight, TrendingUp, AlertTriangle, CheckCircle2, DollarSign } from 'lucide-react';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const STATUS_OPTIONS = [
   { value: '',            label: 'Todos os status' },
@@ -66,6 +67,7 @@ export default function ManagerDashboard() {
     setActivities(prev => prev.filter(a => a.id !== id));
   }
 
+  const isMobile = useIsMobile();
   const activeProj = projects.find(p => p.id === activeProject);
 
   // Cálculos financeiros baseados nas atividades carregadas
@@ -102,7 +104,7 @@ export default function ManagerDashboard() {
           </Link>
         </div>
 
-        <div style={{ padding: '32px 36px' }}>
+        <div style={{ padding: isMobile ? '16px' : '32px 36px' }}>
           {/* Seletor de projeto */}
           {projects.length > 0 && (
             <div style={{ marginBottom: 28 }}>
@@ -138,7 +140,7 @@ export default function ManagerDashboard() {
 
           {/* Cards de estatísticas */}
           {stats.total > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 14, marginBottom: 28 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(160px, 1fr))', gap: isMobile ? 10 : 14, marginBottom: 28 }}>
               {stats.stats.map(s => {
                 const isActive = statusFilter === s.status;
                 const valorStatus = activities.filter(a => a.status === s.status).reduce((acc, a) => acc + (Number(a.howMuch) || 0), 0);
@@ -201,7 +203,7 @@ export default function ManagerDashboard() {
               <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9CA3AF', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 10 }}>
                 Indicadores Financeiros
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fill, minmax(200px, 1fr))', gap: isMobile ? 10 : 14 }}>
                 {/* Total investido */}
                 <div style={{ background: '#fff', borderRadius: 12, padding: '18px 20px', border: '1px solid #E5E7EB', borderTop: '3px solid #F04E00', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
@@ -295,7 +297,7 @@ export default function ManagerDashboard() {
               </Link>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))', gap: 14 }}>
               {activities.map(a => <ActivityCard key={a.id} activity={a} onDelete={handleDelete} />)}
             </div>
           )}

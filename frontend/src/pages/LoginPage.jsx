@@ -28,11 +28,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', fontFamily: 'Inter, sans-serif', flexDirection: window.innerWidth < 768 ? 'column' : 'row' }}>
 
       {/* ── Painel esquerdo ── */}
       <div style={{
-        flex: 1,
+        flex: window.innerWidth < 768 ? 'none' : 1,
+        display: window.innerWidth < 768 ? 'none' : 'flex',
         background: '#111827',
         display: 'flex',
         flexDirection: 'column',
@@ -122,13 +123,14 @@ export default function LoginPage() {
 
       {/* ── Painel direito – formulário ── */}
       <div style={{
-        width: 460,
+        width: window.innerWidth < 768 ? '100%' : 460,
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '48px 48px',
-        background: '#F9FAFB',
-        borderLeft: '1px solid #E5E7EB',
+        padding: window.innerWidth < 768 ? '32px 24px' : '48px 48px',
+        background: window.innerWidth < 768 ? '#111827' : '#F9FAFB',
+        minHeight: window.innerWidth < 768 ? '100vh' : 'auto',
       }}>
         <div style={{ width: '100%', maxWidth: 360 }}>
           {/* Cabeçalho */}

@@ -4,6 +4,7 @@ import Sidebar from '../components/layout/Sidebar';
 import { Plus, Loader2, Trash2, Phone, Mail, Search, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const ROLE_LABEL = { ADMIN: 'Admin', COLLABORATOR: 'Colaborador', CLIENT: 'Cliente' };
 const ROLE_COLOR = { ADMIN: '#F04E00', COLLABORATOR: '#2563EB', CLIENT: '#16A34A' };
@@ -11,6 +12,7 @@ const ROLE_BG    = { ADMIN: '#FFF3EE', COLLABORATOR: '#EFF6FF', CLIENT: '#F0FDF4
 
 export default function UsersPage() {
   const { user: me } = useAuth();
+  const isMobile = useIsMobile();
   const [users,    setUsers]    = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -192,90 +194,62 @@ export default function UsersPage() {
             <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: 48, textAlign: 'center' }}>
               <p style={{ color: '#9CA3AF' }}>Nenhum usuário encontrado.</p>
             </div>
-          ) : (
-            <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-              {/* Cabeçalho da tabela */}
-              <div style={{
-                display: 'grid', gridTemplateColumns: '2fr 2fr 1.2fr 1fr 80px',
-                padding: '10px 20px', background: '#F9FAFB',
-                borderBottom: '1px solid #E5E7EB',
-                fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.6px',
-              }}>
-                <span>Nome</span>
-                <span>E-mail</span>
-                <span>WhatsApp</span>
-                <span>Papel</span>
-                <span style={{ textAlign: 'center' }}>Ações</span>
-              </div>
-
-              {filtered.map((u, i) => (
-                <div key={u.id} style={{
-                  display: 'grid', gridTemplateColumns: '2fr 2fr 1.2fr 1fr 80px',
-                  padding: '14px 20px', alignItems: 'center',
-                  borderBottom: i < filtered.length - 1 ? '1px solid #F3F4F6' : 'none',
-                  transition: 'background 0.1s',
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  {/* Nome + avatar */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{
-                      width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                      background: ROLE_COLOR[u.role], color: '#fff',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontWeight: 700, fontSize: '0.85rem',
-                    }}>
+          ) : isMobile ? (
+            /* Cards para mobile */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {filtered.map(u => (
+                <div key={u.id} style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: '50%', background: ROLE_COLOR[u.role], color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1rem', flexShrink: 0 }}>
                       {u.name[0].toUpperCase()}
                     </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#111827' }}>{u.name}</div>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: ROLE_BG[u.role], color: ROLE_COLOR[u.role] }}>
+                        {ROLE_LABEL[u.role]}
+                      </span>
+                    </div>
+                    {u.id !== me?.id && (
+                      <button onClick={() => handleDelete(u)} style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, cursor: 'pointer', color: '#DC2626', padding: '8px', display: 'flex' }}>
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#6B7280', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Mail size={12} /> {u.email}</div>
+                    {u.phone && <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Phone size={12} /> {u.phone}</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Tabela para desktop */
+            <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1.2fr 1fr 80px', padding: '10px 20px', background: '#F9FAFB', borderBottom: '1px solid #E5E7EB', fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+                <span>Nome</span><span>E-mail</span><span>WhatsApp</span><span>Papel</span><span style={{ textAlign: 'center' }}>Ações</span>
+              </div>
+              {filtered.map((u, i) => (
+                <div key={u.id} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1.2fr 1fr 80px', padding: '14px 20px', alignItems: 'center', borderBottom: i < filtered.length - 1 ? '1px solid #F3F4F6' : 'none', transition: 'background 0.1s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0, background: ROLE_COLOR[u.role], color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>{u.name[0].toUpperCase()}</div>
                     <div>
                       <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#111827' }}>{u.name}</div>
                       {u.id === me?.id && <div style={{ fontSize: '0.68rem', color: '#F04E00', fontWeight: 600 }}>Você</div>}
                     </div>
                   </div>
-
-                  {/* E-mail */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.83rem', color: '#6B7280' }}>
-                    <Mail size={13} style={{ flexShrink: 0 }} />
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</span>
-                  </div>
-
-                  {/* WhatsApp */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.83rem', color: '#6B7280' }}>
-                    <Phone size={13} style={{ flexShrink: 0 }} />
-                    <span>{u.phone || '—'}</span>
-                  </div>
-
-                  {/* Papel */}
-                  <div>
-                    <span style={{
-                      fontSize: '0.72rem', fontWeight: 700, padding: '3px 10px', borderRadius: 99,
-                      background: ROLE_BG[u.role], color: ROLE_COLOR[u.role],
-                      border: `1px solid ${ROLE_COLOR[u.role]}33`,
-                    }}>
-                      {ROLE_LABEL[u.role]}
-                    </span>
-                  </div>
-
-                  {/* Ações */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.83rem', color: '#6B7280' }}><Mail size={13} style={{ flexShrink: 0 }} /><span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</span></div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.83rem', color: '#6B7280' }}><Phone size={13} style={{ flexShrink: 0 }} /><span>{u.phone || '—'}</span></div>
+                  <div><span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '3px 10px', borderRadius: 99, background: ROLE_BG[u.role], color: ROLE_COLOR[u.role], border: `1px solid ${ROLE_COLOR[u.role]}33` }}>{ROLE_LABEL[u.role]}</span></div>
                   <div style={{ display: 'flex', justifyContent: 'center' }}>
                     {u.id !== me?.id ? (
-                      <button
-                        onClick={() => handleDelete(u)}
-                        title="Desativar usuário"
-                        style={{
-                          background: 'none', border: '1px solid #E5E7EB', borderRadius: 7,
-                          cursor: 'pointer', color: '#9CA3AF', padding: '6px 8px',
-                          display: 'flex', alignItems: 'center', transition: 'all 0.15s',
-                        }}
+                      <button onClick={() => handleDelete(u)} title="Desativar usuário" style={{ background: 'none', border: '1px solid #E5E7EB', borderRadius: 7, cursor: 'pointer', color: '#9CA3AF', padding: '6px 8px', display: 'flex', transition: 'all 0.15s' }}
                         onMouseEnter={e => { e.currentTarget.style.background = '#FEF2F2'; e.currentTarget.style.borderColor = '#FECACA'; e.currentTarget.style.color = '#DC2626'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.color = '#9CA3AF'; }}
-                      >
+                        onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.color = '#9CA3AF'; }}>
                         <Trash2 size={14} />
                       </button>
-                    ) : (
-                      <span style={{ fontSize: '0.72rem', color: '#9CA3AF' }}>—</span>
-                    )}
+                    ) : <span style={{ fontSize: '0.72rem', color: '#9CA3AF' }}>—</span>}
                   </div>
                 </div>
               ))}
