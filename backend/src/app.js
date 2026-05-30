@@ -21,6 +21,7 @@ const documentRoutes   = require('./routes/document.routes');
 const okrRoutes        = require('./routes/okr.routes');
 const pdcaRoutes       = require('./routes/pdca.routes');
 const aiRoutes         = require('./routes/ai.routes');
+const dashboardRoutes  = require('./routes/dashboard.routes');
 
 const app = express();
 
@@ -68,6 +69,7 @@ app.use('/api/documents',     documentRoutes);
 app.use('/api/okr',           okrRoutes);
 app.use('/api/pdca',          pdcaRoutes);
 app.use('/api/ai',            aiRoutes);
+app.use('/api/dashboard',     dashboardRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

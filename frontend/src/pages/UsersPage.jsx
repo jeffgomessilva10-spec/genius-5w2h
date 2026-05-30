@@ -6,9 +6,9 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { useIsMobile } from '../hooks/useIsMobile';
 
-const ROLE_LABEL = { ADMIN: 'Admin', COLLABORATOR: 'Colaborador', CLIENT: 'Cliente' };
-const ROLE_COLOR = { ADMIN: '#F04E00', COLLABORATOR: '#2563EB', CLIENT: '#16A34A' };
-const ROLE_BG    = { ADMIN: '#FFF3EE', COLLABORATOR: '#EFF6FF', CLIENT: '#F0FDF4' };
+const ROLE_LABEL = { ADMIN: 'Admin', COLLABORATOR: 'Colaborador', CLIENT: 'Cliente', EXECUTIVE: 'Executivo' };
+const ROLE_COLOR = { ADMIN: '#F04E00', COLLABORATOR: '#2563EB', CLIENT: '#16A34A', EXECUTIVE: '#7C3AED' };
+const ROLE_BG    = { ADMIN: '#FFF3EE', COLLABORATOR: '#EFF6FF', CLIENT: '#F0FDF4', EXECUTIVE: '#F5F3FF' };
 
 export default function UsersPage() {
   const { user: me } = useAuth();
@@ -144,6 +144,7 @@ export default function UsersPage() {
                     <select className="input" value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} style={{ border: '1.5px solid #E5E7EB' }}>
                       <option value="COLLABORATOR">Colaborador — acessa projetos vinculados</option>
                       <option value="CLIENT">Cliente — vê apenas indicadores do projeto</option>
+                      <option value="EXECUTIVE">Executivo — dashboard executivo, sem edição</option>
                       <option value="ADMIN">Admin — acesso total</option>
                     </select>
                   </div>

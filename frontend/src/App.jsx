@@ -12,6 +12,8 @@ import GanttPage from './pages/GanttPage';
 import DocumentsPage from './pages/DocumentsPage';
 import OKRPage from './pages/OKRPage';
 import PdcaPage from './pages/PdcaPage';
+import ExecutiveDashboard from './pages/ExecutiveDashboard';
+import OperationalDashboard from './pages/OperationalDashboard';
 import './styles/globals.css';
 
 // Guard: só autenticados
@@ -34,9 +36,17 @@ function CollaboratorRoute({ children }) {
 function RoleRouter() {
   const { user, isClient } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  return isClient
-    ? <Navigate to="/client" replace />
-    : <Navigate to="/dashboard" replace />;
+  if (isClient) return <Navigate to="/client" replace />;
+  if (user.role === 'EXECUTIVE') return <Navigate to="/executive" replace />;
+  return <Navigate to="/dashboard" replace />;
+}
+
+function ExecutiveRoute({ children }) {
+  const { user, isExecutive, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  if (!isExecutive) return <Navigate to="/dashboard" replace />;
+  return children;
 }
 
 export default function App() {
@@ -49,7 +59,10 @@ export default function App() {
 
           {/* Colaboradores / Admin */}
           <Route path="/dashboard" element={
-            <CollaboratorRoute><ManagerDashboard /></CollaboratorRoute>
+            <CollaboratorRoute><OperationalDashboard /></CollaboratorRoute>
+          } />
+          <Route path="/executive" element={
+            <ExecutiveRoute><ExecutiveDashboard /></ExecutiveRoute>
           } />
           <Route path="/projects" element={
             <CollaboratorRoute><ProjectsPage /></CollaboratorRoute>

@@ -1,11 +1,11 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, FolderKanban, Users, LogOut, GanttChartSquare, Menu, X, FileText, Target, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Users, LogOut, GanttChartSquare, Menu, X, FileText, Target, RefreshCw, TrendingUp } from 'lucide-react';
 import NotificationBell from '../ui/NotificationBell';
 import { useState, useEffect } from 'react';
 
 export default function Sidebar() {
-  const { user, logout, isCollaborator, isAdmin } = useAuth();
+  const { user, logout, isCollaborator, isAdmin, isExecutive } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -20,12 +20,13 @@ export default function Sidebar() {
 
   const links = isCollaborator
     ? [
-        { to: '/dashboard', icon: LayoutDashboard,   label: 'Dashboard' },
-        { to: '/projects',  icon: FolderKanban,      label: 'Projetos'  },
-        { to: '/gantt',     icon: GanttChartSquare,  label: 'Gantt'      },
-        { to: '/documents', icon: FileText,   label: 'Documentos' },
-        { to: '/okr',       icon: Target,    label: 'OKRs'       },
-        { to: '/pdca',      icon: RefreshCw, label: 'PDCA'       },
+        { to: '/dashboard',  icon: LayoutDashboard,  label: 'Operacional' },
+        ...(isExecutive ? [{ to: '/executive', icon: TrendingUp, label: 'Executivo' }] : []),
+        { to: '/projects',   icon: FolderKanban,     label: 'Projetos'    },
+        { to: '/gantt',      icon: GanttChartSquare, label: 'Gantt'       },
+        { to: '/documents',  icon: FileText,         label: 'Documentos'  },
+        { to: '/okr',        icon: Target,           label: 'OKRs'        },
+        { to: '/pdca',       icon: RefreshCw,        label: 'PDCA'        },
         ...(isAdmin ? [{ to: '/users', icon: Users, label: 'Usuários' }] : []),
       ]
     : [{ to: '/client', icon: LayoutDashboard, label: 'Meus Projetos' }];

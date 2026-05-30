@@ -63,7 +63,7 @@ async function authorizeProjectAccess(req, res, next) {
     const { role, id: userId } = req.user;
     const projectId = req.params.projectId || req.params.id;
 
-    if (role === 'ADMIN' || role === 'COLLABORATOR') return next();
+    if (role === 'ADMIN' || role === 'COLLABORATOR' || role === 'EXECUTIVE') return next();
 
     // CLIENT: verifica vínculo
     const link = await prisma.projectUser.findUnique({

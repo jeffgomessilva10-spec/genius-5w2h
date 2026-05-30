@@ -11,9 +11,10 @@ datasource db {
 }
 
 enum Role {
-  COLLABORATOR
-  CLIENT
-  ADMIN
+  COLLABORATOR   // operacional: vê suas atividades
+  CLIENT         // cliente externo: vê indicadores do seu projeto
+  ADMIN          // acesso total + dashboard executivo
+  EXECUTIVE      // gestor/c-level: dashboard executivo, sem edição
 }
 
 enum ActivityStatus {
@@ -74,6 +75,7 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
+  dashboardPrefs    Json?     @map("dashboard_prefs")   // preferências de KPIs
   activities        Activity[]
   projects          ProjectUser[]
   notifications     Notification[]

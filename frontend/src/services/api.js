@@ -126,4 +126,11 @@ export const aiAPI = {
   suggest:  (field, value, ctx)    => api.post('/ai/suggest', { field, value, context: ctx }),
 };
 
+export const dashboardAPI = {
+  operational: (params) => api.get('/dashboard/operational', { params }),
+  executive:   (params) => api.get('/dashboard/executive',   { params }),
+  getPrefs:    ()       => api.get('/dashboard/preferences'),
+  savePrefs:   (prefs)  => api.put('/dashboard/preferences', { preferences: prefs }),
+};
+
 export default api;
