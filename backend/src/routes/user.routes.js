@@ -13,7 +13,7 @@ router.get('/', authorize('ADMIN', 'COLLABORATOR'), async (req, res, next) => {
     const { role } = req.query;
     const users = await prisma.user.findMany({
       where: { ...(role ? { role } : {}), isActive: true },
-      select: { id: true, name: true, email: true, role: true, avatarUrl: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, phone: true, avatarUrl: true, createdAt: true },
       orderBy: { name: 'asc' },
     });
     res.json({ users });
