@@ -39,19 +39,11 @@ export default function Sidebar() {
     }}>
       {/* Logo */}
       <div style={{
-        padding: '28px 24px',
+        padding: '20px 24px',
         borderBottom: '1px solid var(--genius-border)',
+        display: 'flex', alignItems: 'center',
       }}>
-        <div style={{
-          fontFamily: "'Bebas Neue', sans-serif",
-          fontSize: '1.6rem',
-          letterSpacing: '2px',
-          color: 'var(--genius-gold)',
-          lineHeight: 1,
-        }}>GENIUS</div>
-        <div style={{ color: 'var(--genius-text-muted)', fontSize: '0.72rem', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: 2 }}>
-          Consultoria
-        </div>
+        <img src="/logo-branca.png" alt="Genius Consultoria" style={{ height: 36, width: 'auto', objectFit: 'contain' }} />
       </div>
 
       {/* Nav */}

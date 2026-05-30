@@ -39,7 +39,7 @@ export default function LoginPage() {
       {/* Painel esquerdo – identidade visual */}
       <div style={{
         flex: 1,
-        background: 'linear-gradient(135deg, #0D0D0D 0%, #1a1200 50%, #0D0D0D 100%)',
+        background: 'linear-gradient(135deg, #0D0D0D 0%, #1a0d06 50%, #0D0D0D 100%)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -52,32 +52,19 @@ export default function LoginPage() {
         <div style={{
           position: 'absolute', top: -100, right: -100,
           width: 400, height: 400, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(245,197,0,0.12) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(240,90,40,0.15) 0%, transparent 70%)',
           pointerEvents: 'none',
         }} />
         <div style={{
           position: 'absolute', bottom: -80, left: -80,
           width: 300, height: 300, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(245,197,0,0.06) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(240,90,40,0.08) 0%, transparent 70%)',
           pointerEvents: 'none',
         }} />
 
         <div style={{ position: 'relative', zIndex: 1 }}>
           {/* Logo */}
-          <div style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: '3.5rem',
-            letterSpacing: '4px',
-            color: 'var(--genius-gold)',
-            lineHeight: 1,
-          }}>GENIUS</div>
-          <div style={{
-            fontSize: '0.85rem',
-            letterSpacing: '3px',
-            textTransform: 'uppercase',
-            color: 'var(--genius-text-muted)',
-            marginBottom: 40,
-          }}>CONSULTORIA</div>
+          <img src="/logo-branca.png" alt="Genius Consultoria" style={{ height: 48, width: 'auto', objectFit: 'contain', marginBottom: 40 }} />
 
           <h1 style={{
             fontFamily: "'Bebas Neue', sans-serif",
@@ -105,8 +92,8 @@ export default function LoginPage() {
             {['O quê', 'Por quê', 'Quem', 'Onde', 'Como', 'Quanto', 'Quando'].map((tag) => (
               <span key={tag} style={{
                 padding: '4px 12px', borderRadius: '999px',
-                background: 'rgba(245,197,0,0.08)',
-                border: '1px solid rgba(245,197,0,0.2)',
+                background: 'rgba(240,90,40,0.08)',
+                border: '1px solid rgba(240,90,40,0.25)',
                 color: 'var(--genius-gold)',
                 fontSize: '0.78rem', fontWeight: 600,
               }}>{tag}</span>
