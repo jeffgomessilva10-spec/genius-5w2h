@@ -1,11 +1,9 @@
-// src/pages/ManagerDashboard.jsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { projectsAPI, activitiesAPI } from '../services/api';
 import Sidebar from '../components/layout/Sidebar';
-import StatsBar from '../components/ui/StatsBar';
 import ActivityCard from '../components/ui/ActivityCard';
-import { Plus, FolderOpen, Search, Filter, Loader2 } from 'lucide-react';
+import { Plus, FolderOpen, Search, SlidersHorizontal, Loader2, ChevronRight } from 'lucide-react';
 
 const STATUS_OPTIONS = [
   { value: '',            label: 'Todos os status' },
@@ -15,13 +13,17 @@ const STATUS_OPTIONS = [
   { value: 'DONE',        label: 'Finalizado'      },
 ];
 
+const STATUS_COLOR = { PLANNED: '#6B7280', IN_PROGRESS: '#2563EB', DELAYED: '#DC2626', DONE: '#16A34A' };
+const STATUS_BG    = { PLANNED: '#F3F4F6', IN_PROGRESS: '#EFF6FF', DELAYED: '#FEF2F2', DONE: '#F0FDF4' };
+const STATUS_LABEL = { PLANNED: 'Planejadas', IN_PROGRESS: 'Em andamento', DELAYED: 'Atrasadas', DONE: 'Finalizadas' };
+
 export default function ManagerDashboard() {
-  const [projects,    setProjects]    = useState([]);
-  const [activities,  setActivities]  = useState([]);
-  const [stats,       setStats]       = useState({ stats: [], total: 0 });
-  const [loading,     setLoading]     = useState(true);
-  const [search,      setSearch]      = useState('');
-  const [statusFilter,setStatusFilter]= useState('');
+  const [projects,     setProjects]     = useState([]);
+  const [activities,   setActivities]   = useState([]);
+  const [stats,        setStats]        = useState({ stats: [], total: 0 });
+  const [loading,      setLoading]      = useState(true);
+  const [search,       setSearch]       = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [activeProject, setActiveProject] = useState(null);
 
   useEffect(() => { loadProjects(); }, []);
@@ -31,11 +33,8 @@ export default function ManagerDashboard() {
       const { data } = await projectsAPI.list();
       setProjects(data.projects);
       if (data.projects.length > 0) selectProject(data.projects[0].id);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
   }
 
   async function selectProject(projectId) {
@@ -48,9 +47,7 @@ export default function ManagerDashboard() {
       ]);
       setActivities(actsRes.data.activities);
       setStats(statsRes.data);
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   }
 
   async function applyFilters() {
@@ -59,113 +56,161 @@ export default function ManagerDashboard() {
     try {
       const { data } = await activitiesAPI.list({ search, status: statusFilter });
       setActivities(data.activities);
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   }
 
   async function handleDelete(id) {
     if (!confirm('Excluir esta atividade?')) return;
     await activitiesAPI.delete(id);
-    setActivities((prev) => prev.filter((a) => a.id !== id));
+    setActivities(prev => prev.filter(a => a.id !== id));
   }
 
+  const activeProj = projects.find(p => p.id === activeProject);
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#F3F4F6' }}>
       <Sidebar />
 
-      <main style={{ flex: 1, padding: '36px 40px', overflowY: 'auto' }}>
-        {/* Header */}
-        <div className="flex items-center justify-between" style={{ marginBottom: 32 }}>
+      <main style={{ flex: 1, overflowY: 'auto' }}>
+        {/* Topbar */}
+        <div style={{
+          background: '#fff', borderBottom: '1px solid #E5E7EB',
+          padding: '0 36px', display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', height: 64, position: 'sticky', top: 0, zIndex: 10,
+        }}>
           <div>
-            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.2rem', letterSpacing: 2, lineHeight: 1 }}>
-              PAINEL DO <span style={{ color: 'var(--genius-gold)' }}>GESTOR</span>
-            </h1>
-            <p style={{ color: 'var(--genius-text-muted)', marginTop: 4, fontSize: '0.9rem' }}>
-              Gerencie projetos e atividades do plano 5W2H
-            </p>
+            <span style={{ fontSize: '0.8rem', color: '#9CA3AF', fontWeight: 500 }}>Dashboard</span>
+            {activeProj && (
+              <>
+                <span style={{ color: '#D1D5DB', margin: '0 6px' }}>›</span>
+                <span style={{ fontSize: '0.8rem', color: '#374151', fontWeight: 600 }}>{activeProj.name}</span>
+              </>
+            )}
           </div>
-          <Link to="/activities/new" className="btn btn-primary">
-            <Plus size={16} /> Nova Atividade
+          <Link to="/activities/new" className="btn btn-primary" style={{ fontSize: '0.82rem', padding: '8px 16px' }}>
+            <Plus size={15} /> Nova Atividade
           </Link>
         </div>
 
-        {/* Projetos – abas */}
-        {projects.length > 0 && (
-          <div style={{ display: 'flex', gap: 8, marginBottom: 28, flexWrap: 'wrap' }}>
-            {projects.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => selectProject(p.id)}
-                className="btn"
-                style={{
-                  background: activeProject === p.id ? 'var(--genius-gold)' : 'var(--genius-surface)',
-                  color: activeProject === p.id ? 'var(--genius-black)' : 'var(--genius-text-muted)',
-                  border: `1px solid ${activeProject === p.id ? 'var(--genius-gold)' : 'var(--genius-border)'}`,
-                  fontWeight: activeProject === p.id ? 700 : 400,
-                }}
-              >
-                <FolderOpen size={14} />
-                {p.name}
-              </button>
-            ))}
-            <Link to={`/projects/${activeProject}`} className="btn btn-ghost" style={{ fontSize: '0.82rem' }}>
-              Ver projeto completo →
-            </Link>
-          </div>
-        )}
+        <div style={{ padding: '32px 36px' }}>
+          {/* Seletor de projeto */}
+          {projects.length > 0 && (
+            <div style={{ marginBottom: 28 }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9CA3AF', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 10 }}>
+                Projeto ativo
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                {projects.map(p => (
+                  <button key={p.id} onClick={() => selectProject(p.id)} style={{
+                    padding: '7px 16px', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600,
+                    cursor: 'pointer', border: '1.5px solid',
+                    background: activeProject === p.id ? '#F04E00' : '#fff',
+                    borderColor: activeProject === p.id ? '#F04E00' : '#E5E7EB',
+                    color: activeProject === p.id ? '#fff' : '#374151',
+                    transition: 'all 0.15s',
+                    display: 'flex', alignItems: 'center', gap: 7,
+                  }}>
+                    <FolderOpen size={14} /> {p.name}
+                  </button>
+                ))}
+                {activeProject && (
+                  <Link to={`/projects/${activeProject}`} style={{
+                    fontSize: '0.82rem', color: '#F04E00', fontWeight: 600,
+                    display: 'flex', alignItems: 'center', gap: 4,
+                    textDecoration: 'none', marginLeft: 4,
+                  }}>
+                    Ver projeto completo <ChevronRight size={14} />
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
 
-        {/* Stats */}
-        <StatsBar stats={stats.stats} total={stats.total} />
+          {/* Cards de estatísticas */}
+          {stats.total > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 14, marginBottom: 28 }}>
+              {stats.stats.map(s => (
+                <div key={s.status} style={{
+                  background: '#fff', borderRadius: 12, padding: '18px 20px',
+                  border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                  borderTop: `3px solid ${STATUS_COLOR[s.status] || '#9CA3AF'}`,
+                }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 8 }}>
+                    {STATUS_LABEL[s.status] || s.status}
+                  </div>
+                  <div style={{ fontSize: '2rem', fontWeight: 800, color: STATUS_COLOR[s.status] || '#374151', lineHeight: 1 }}>
+                    {s._count?.status || 0}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: 4 }}>
+                    {Math.round(((s._count?.status || 0) / stats.total) * 100)}% do total
+                  </div>
+                </div>
+              ))}
+              <div style={{
+                background: '#fff', borderRadius: 12, padding: '18px 20px',
+                border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                borderTop: '3px solid #F04E00',
+              }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 8 }}>
+                  Total
+                </div>
+                <div style={{ fontSize: '2rem', fontWeight: 800, color: '#F04E00', lineHeight: 1 }}>
+                  {stats.total}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: 4 }}>atividades</div>
+              </div>
+            </div>
+          )}
 
-        {/* Filtros */}
-        <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
-          <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
-            <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--genius-text-muted)' }} />
-            <input
-              className="input"
-              placeholder="Buscar por descrição, motivo ou responsável..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-              style={{ paddingLeft: 36 }}
-            />
+          {/* Barra de busca e filtros */}
+          <div style={{
+            background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12,
+            padding: '14px 18px', marginBottom: 20,
+            display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          }}>
+            <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
+              <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
+              <input
+                className="input"
+                placeholder="Buscar atividades..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && applyFilters()}
+                style={{ paddingLeft: 36, border: '1px solid #E5E7EB', background: '#F9FAFB', color: '#111827', height: 38, fontSize: '0.85rem' }}
+              />
+            </div>
+            <select className="input" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+              style={{ width: 180, border: '1px solid #E5E7EB', background: '#F9FAFB', color: '#374151', height: 38, fontSize: '0.85rem' }}>
+              {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+            <button className="btn btn-ghost" onClick={applyFilters} style={{ height: 38, fontSize: '0.82rem' }}>
+              <SlidersHorizontal size={14} /> Filtrar
+            </button>
           </div>
-          <select
-            className="input"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            style={{ width: 180 }}
-          >
-            {STATUS_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
-          <button className="btn btn-ghost" onClick={applyFilters}>
-            <Filter size={14} /> Filtrar
-          </button>
+
+          {/* Lista de atividades */}
+          {loading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}>
+              <Loader2 size={28} style={{ color: '#F04E00', animation: 'spin 1s linear infinite' }} />
+            </div>
+          ) : activities.length === 0 ? (
+            <div style={{
+              background: '#fff', border: '1px solid #E5E7EB', borderRadius: 14,
+              textAlign: 'center', padding: '60px 20px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            }}>
+              <FolderOpen size={36} style={{ color: '#D1D5DB', marginBottom: 12 }} />
+              <p style={{ color: '#9CA3AF', fontWeight: 500, marginBottom: 16 }}>Nenhuma atividade encontrada.</p>
+              <Link to="/activities/new" className="btn btn-primary" style={{ display: 'inline-flex', fontSize: '0.85rem' }}>
+                <Plus size={15} /> Criar primeira atividade
+              </Link>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 14 }}>
+              {activities.map(a => <ActivityCard key={a.id} activity={a} onDelete={handleDelete} />)}
+            </div>
+          )}
         </div>
-
-        {/* Lista de atividades */}
-        {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}>
-            <Loader2 size={32} style={{ color: 'var(--genius-gold)', animation: 'spin 1s linear infinite' }} />
-          </div>
-        ) : activities.length === 0 ? (
-          <div className="card" style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <FolderOpen size={40} style={{ color: 'var(--genius-text-subtle)', marginBottom: 12 }} />
-            <p style={{ color: 'var(--genius-text-muted)' }}>Nenhuma atividade encontrada.</p>
-            <Link to="/activities/new" className="btn btn-primary" style={{ marginTop: 16, display: 'inline-flex' }}>
-              <Plus size={16} /> Criar primeira atividade
-            </Link>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 16 }}>
-            {activities.map((a) => (
-              <ActivityCard key={a.id} activity={a} onDelete={handleDelete} />
-            ))}
-          </div>
-        )}
       </main>
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>

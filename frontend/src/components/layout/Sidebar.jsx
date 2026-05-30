@@ -1,105 +1,103 @@
-// src/components/layout/Sidebar.jsx
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import {
-  LayoutDashboard, FolderKanban, Bell, LogOut,
-  ChevronRight, Users, Settings,
-} from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Users, LogOut } from 'lucide-react';
 import NotificationBell from '../ui/NotificationBell';
 
 export default function Sidebar() {
   const { user, logout, isCollaborator, isAdmin } = useAuth();
   const navigate = useNavigate();
 
-  function handleLogout() {
-    logout();
-    navigate('/login');
-  }
+  function handleLogout() { logout(); navigate('/login'); }
 
   const links = isCollaborator
     ? [
-        { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
-        { to: '/projects',   icon: FolderKanban,   label: 'Projetos'  },
+        { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/projects',  icon: FolderKanban,   label: 'Projetos'  },
         ...(isAdmin ? [{ to: '/users', icon: Users, label: 'Usuários' }] : []),
       ]
-    : [
-        { to: '/client', icon: LayoutDashboard, label: 'Meus Projetos' },
-      ];
+    : [{ to: '/client', icon: LayoutDashboard, label: 'Meus Projetos' }];
 
   return (
     <aside style={{
       width: 240,
       minHeight: '100vh',
-      background: 'var(--genius-dark)',
-      borderRight: '1px solid var(--genius-border)',
+      background: '#111827',
       display: 'flex',
       flexDirection: 'column',
-      padding: '0',
       flexShrink: 0,
+      position: 'sticky',
+      top: 0,
+      height: '100vh',
     }}>
       {/* Logo */}
       <div style={{
-        padding: '20px 24px',
-        borderBottom: '1px solid var(--genius-border)',
-        display: 'flex', alignItems: 'center',
+        padding: '24px 20px',
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
       }}>
-        <img src="/logo-branca.png" alt="Genius Consultoria" style={{ height: 36, width: 'auto', objectFit: 'contain' }} />
+        <img src="/logo-branca.png" alt="Genius Consultoria" style={{ height: 32, width: 'auto', objectFit: 'contain' }} />
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '16px 12px' }}>
+      <nav style={{ flex: 1, padding: '16px 12px', overflowY: 'auto' }}>
+        <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '1.2px', textTransform: 'uppercase', padding: '0 8px', marginBottom: 8 }}>
+          Menu
+        </div>
         {links.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            style={({ isActive }) => ({
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '10px 12px',
-              borderRadius: 8,
-              marginBottom: 4,
-              color: isActive ? 'var(--genius-gold)' : 'var(--genius-text-muted)',
-              background: isActive ? 'rgba(245,197,0,0.08)' : 'transparent',
-              fontWeight: isActive ? 600 : 400,
-              fontSize: '0.9rem',
-              transition: 'all 0.15s',
-              textDecoration: 'none',
-            })}
+          <NavLink key={to} to={to} style={({ isActive }) => ({
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '9px 12px',
+            borderRadius: 8,
+            marginBottom: 2,
+            color: isActive ? '#fff' : 'rgba(255,255,255,0.5)',
+            background: isActive ? '#F04E00' : 'transparent',
+            fontWeight: isActive ? 600 : 400,
+            fontSize: '0.875rem',
+            transition: 'all 0.15s',
+            textDecoration: 'none',
+          })}
+          onMouseEnter={e => { if (!e.currentTarget.style.background.includes('F04E00')) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+          onMouseLeave={e => { if (!e.currentTarget.style.background.includes('F04E00')) e.currentTarget.style.background = 'transparent'; }}
           >
-            <Icon size={18} />
+            <Icon size={17} />
             {label}
           </NavLink>
         ))}
       </nav>
 
-      {/* Usuário + notificações */}
-      <div style={{ padding: '16px', borderTop: '1px solid var(--genius-border)' }}>
-        <NotificationBell />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
+      {/* Rodapé: usuário + notificações */}
+      <div style={{ padding: '16px 12px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+        <div style={{ marginBottom: 12 }}>
+          <NotificationBell />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
-            width: 36, height: 36, borderRadius: '50%',
-            background: 'var(--genius-gold)',
+            width: 34, height: 34, borderRadius: '50%',
+            background: '#F04E00',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'var(--genius-black)', fontWeight: 700, fontSize: '0.9rem',
-            flexShrink: 0,
+            color: '#fff', fontWeight: 700, fontSize: '0.85rem', flexShrink: 0,
           }}>
             {user?.name?.[0]?.toUpperCase()}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {user?.name}
             </div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--genius-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               {user?.role === 'ADMIN' ? 'Admin' : user?.role === 'COLLABORATOR' ? 'Colaborador' : 'Cliente'}
             </div>
           </div>
           <button onClick={handleLogout} title="Sair" style={{
             background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--genius-text-muted)', padding: 4,
-            display: 'flex', alignItems: 'center',
-          }}>
-            <LogOut size={16} />
+            color: 'rgba(255,255,255,0.35)', padding: 4,
+            display: 'flex', alignItems: 'center', borderRadius: 6,
+            transition: 'color 0.15s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = '#F04E00'}
+          onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.35)'}
+          >
+            <LogOut size={15} />
           </button>
         </div>
       </div>

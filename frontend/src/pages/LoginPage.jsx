@@ -1,4 +1,3 @@
-// src/pages/LoginPage.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -13,131 +12,154 @@ export default function LoginPage() {
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState('');
 
-  // Redireciona se já logado
   if (user) { navigate('/'); return null; }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+    setLoading(true); setError('');
     try {
       const u = await login(email, password);
       navigate(u.role === 'CLIENT' ? '/client' : '/dashboard', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.error || 'Erro ao fazer login.');
+      setError(err.response?.data?.error || 'Credenciais inválidas. Tente novamente.');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'var(--genius-black)',
-      display: 'flex',
-    }}>
-      {/* Painel esquerdo – identidade visual */}
+    <div style={{ minHeight: '100vh', display: 'flex', fontFamily: 'Inter, sans-serif' }}>
+
+      {/* ── Painel esquerdo ── */}
       <div style={{
         flex: 1,
-        background: 'linear-gradient(135deg, #0D0D0D 0%, #1a0d06 50%, #0D0D0D 100%)',
+        background: '#111827',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        padding: '60px 64px',
+        justifyContent: 'space-between',
+        padding: '48px 56px',
         position: 'relative',
         overflow: 'hidden',
       }}>
-        {/* Decoração */}
+        {/* Decoração geométrica */}
         <div style={{
-          position: 'absolute', top: -100, right: -100,
-          width: 400, height: 400, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(240,90,40,0.15) 0%, transparent 70%)',
+          position: 'absolute', top: -120, right: -120,
+          width: 480, height: 480, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(240,78,0,0.18) 0%, transparent 65%)',
           pointerEvents: 'none',
         }} />
         <div style={{
-          position: 'absolute', bottom: -80, left: -80,
-          width: 300, height: 300, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(240,90,40,0.08) 0%, transparent 70%)',
+          position: 'absolute', bottom: -100, left: -60,
+          width: 360, height: 360, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(240,78,0,0.08) 0%, transparent 65%)',
           pointerEvents: 'none',
+        }} />
+        {/* Linha decorativa laranja */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0,
+          height: 3, background: 'linear-gradient(90deg, #F04E00, transparent)',
         }} />
 
+        {/* Logo */}
         <div style={{ position: 'relative', zIndex: 1 }}>
-          {/* Logo */}
-          <img src="/logo-branca.png" alt="Genius Consultoria" style={{ height: 48, width: 'auto', objectFit: 'contain', marginBottom: 40 }} />
+          <img src="/logo-branca.png" alt="Genius Consultoria" style={{ height: 38, width: 'auto', objectFit: 'contain' }} />
+        </div>
+
+        {/* Conteúdo central */}
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 420 }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            background: 'rgba(240,78,0,0.12)', border: '1px solid rgba(240,78,0,0.25)',
+            borderRadius: 999, padding: '5px 14px', marginBottom: 28,
+          }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#F04E00' }} />
+            <span style={{ fontSize: '0.75rem', color: '#F04E00', fontWeight: 600, letterSpacing: '0.5px' }}>
+              METODOLOGIA 5W2H
+            </span>
+          </div>
 
           <h1 style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: '2.8rem',
-            lineHeight: 1.1,
-            color: 'var(--genius-text)',
-            maxWidth: 380,
-            marginBottom: 20,
+            fontSize: '2.6rem', fontWeight: 800, lineHeight: 1.15,
+            color: '#fff', marginBottom: 20, letterSpacing: '-0.02em',
           }}>
-            GESTÃO DE PROJETOS{' '}
-            <span style={{ color: 'var(--genius-gold)' }}>5W2H</span>
+            Gestão de Projetos{' '}
+            <span style={{ color: '#F04E00' }}>inteligente</span>
           </h1>
 
           <p style={{
-            color: 'var(--genius-text-muted)',
-            fontSize: '1rem',
-            maxWidth: 340,
-            lineHeight: 1.7,
+            color: 'rgba(255,255,255,0.55)', fontSize: '1rem', lineHeight: 1.75, marginBottom: 40,
           }}>
-            Acompanhe o progresso dos seus projetos com metodologia estruturada, alertas automáticos e visão em tempo real.
+            Acompanhe o progresso dos seus projetos com metodologia estruturada, alertas automáticos e visão executiva em tempo real.
           </p>
 
-          {/* Tags de metodologia */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 32 }}>
-            {['O quê', 'Por quê', 'Quem', 'Onde', 'Como', 'Quanto', 'Quando'].map((tag) => (
-              <span key={tag} style={{
-                padding: '4px 12px', borderRadius: '999px',
-                background: 'rgba(240,90,40,0.08)',
-                border: '1px solid rgba(240,90,40,0.25)',
-                color: 'var(--genius-gold)',
-                fontSize: '0.78rem', fontWeight: 600,
-              }}>{tag}</span>
+          {/* Pilares 5W2H */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {[
+              { label: 'O quê', desc: 'What' },
+              { label: 'Por quê', desc: 'Why' },
+              { label: 'Quem', desc: 'Who' },
+              { label: 'Onde', desc: 'Where' },
+              { label: 'Como', desc: 'How' },
+              { label: 'Quanto', desc: 'How much' },
+              { label: 'Quando', desc: 'When' },
+            ].map(t => (
+              <span key={t.label} style={{
+                padding: '5px 13px', borderRadius: 999,
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'rgba(255,255,255,0.6)',
+                fontSize: '0.78rem', fontWeight: 500,
+              }}>{t.label}</span>
             ))}
           </div>
         </div>
+
+        {/* Rodapé */}
+        <div style={{ position: 'relative', zIndex: 1, color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem' }}>
+          © {new Date().getFullYear()} Genius Consultoria · Genialidade que demonstra resultados
+        </div>
       </div>
 
-      {/* Painel direito – formulário */}
+      {/* ── Painel direito – formulário ── */}
       <div style={{
-        width: 440,
+        width: 460,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '40px',
-        background: 'var(--genius-dark)',
-        borderLeft: '1px solid var(--genius-border)',
+        padding: '48px 48px',
+        background: '#F9FAFB',
+        borderLeft: '1px solid #E5E7EB',
       }}>
         <div style={{ width: '100%', maxWidth: 360 }}>
-          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: '1.5rem', marginBottom: 6 }}>
-            Bem-vindo de volta
-          </h2>
-          <p style={{ color: 'var(--genius-text-muted)', fontSize: '0.88rem', marginBottom: 32 }}>
-            Faça login para acessar seu painel
-          </p>
+          {/* Cabeçalho */}
+          <div style={{ marginBottom: 36 }}>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#111827', marginBottom: 6, letterSpacing: '-0.02em' }}>
+              Bem-vindo de volta
+            </h2>
+            <p style={{ color: '#6B7280', fontSize: '0.875rem' }}>
+              Faça login para acessar seu painel
+            </p>
+          </div>
 
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: '0.83rem', color: 'var(--genius-text-muted)', marginBottom: 6 }}>
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#374151', marginBottom: 6 }}>
                 E-mail
               </label>
               <input
                 className="input"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 placeholder="seu@email.com"
                 required
                 autoFocus
+                style={{ background: '#fff', border: '1.5px solid #E5E7EB', color: '#111827' }}
               />
             </div>
 
-            <div style={{ marginBottom: 24 }}>
-              <label style={{ display: 'block', fontSize: '0.83rem', color: 'var(--genius-text-muted)', marginBottom: 6 }}>
+            <div style={{ marginBottom: 28 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#374151', marginBottom: 6 }}>
                 Senha
               </label>
               <div style={{ position: 'relative' }}>
@@ -145,20 +167,15 @@ export default function LoginPage() {
                   className="input"
                   type={showPwd ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  style={{ paddingRight: 44 }}
+                  style={{ paddingRight: 44, background: '#fff', border: '1.5px solid #E5E7EB', color: '#111827' }}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPwd(!showPwd)}
-                  style={{
-                    position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    color: 'var(--genius-text-muted)',
-                  }}
-                >
+                <button type="button" onClick={() => setShowPwd(!showPwd)} style={{
+                  position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF',
+                }}>
                   {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
@@ -166,33 +183,25 @@ export default function LoginPage() {
 
             {error && (
               <div style={{
-                background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
-                borderRadius: 8, padding: '10px 14px', marginBottom: 16,
-                color: '#F87171', fontSize: '0.85rem',
+                background: '#FEF2F2', border: '1px solid #FECACA',
+                borderRadius: 8, padding: '10px 14px', marginBottom: 20,
+                color: '#DC2626', fontSize: '0.85rem', fontWeight: 500,
               }}>
                 {error}
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-primary"
-              style={{ width: '100%', justifyContent: 'center', padding: '13px', fontSize: '0.95rem' }}
-            >
-              {loading ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : 'Entrar'}
+            <button type="submit" disabled={loading} className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center', padding: '13px', fontSize: '0.9rem', borderRadius: 10 }}>
+              {loading
+                ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                : 'Entrar'}
             </button>
           </form>
-
-          <p style={{ marginTop: 32, textAlign: 'center', fontSize: '0.78rem', color: 'var(--genius-text-subtle)' }}>
-            © {new Date().getFullYear()} Genius Consultoria · Genialidade que demonstra resultados
-          </p>
         </div>
       </div>
 
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
