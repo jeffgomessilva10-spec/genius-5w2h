@@ -142,4 +142,19 @@ function buildEmailHtml(name, title, message) {
   </body></html>`;
 }
 
-module.exports = { sendNotification, createStatusChangeNotification, checkDeadlines };
+/**
+ * Envia boas-vindas com credenciais ao novo usuário.
+ */
+async function sendWelcomeNotification({ userId, name, email, password, phone }) {
+  const title   = 'Bem-vindo à Genius Consultoria!';
+  const message = `Seu acesso ao sistema foi criado. Use as credenciais abaixo para entrar:\n\nE-mail: ${email}\nSenha: ${password}\n\nAcesse: ${process.env.FRONTEND_URL || 'https://wonderful-pothos-f66e23.netlify.app'}`;
+
+  // Salva no banco e envia e-mail
+  await sendNotification({ userId, type: 'STATUS_CHANGE', title, message });
+
+  // WhatsApp
+  const whatsappMsg = `🎉 *Genius Consultoria*\n\nOlá, *${name}*! Seu acesso foi criado.\n\n📧 *E-mail:* ${email}\n🔑 *Senha:* ${password}\n\n🔗 Acesse: ${process.env.FRONTEND_URL || 'https://wonderful-pothos-f66e23.netlify.app'}\n\n_Recomendamos alterar sua senha após o primeiro acesso._`;
+  await sendWhatsApp(phone, whatsappMsg);
+}
+
+module.exports = { sendNotification, createStatusChangeNotification, checkDeadlines, sendWelcomeNotification };

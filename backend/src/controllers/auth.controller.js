@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const prisma = require('../prisma/client');
+const { sendWelcomeNotification } = require('../services/notification.service');
 
 /** Gera JWT com payload mínimo */
 function signToken(user) {
@@ -71,6 +72,11 @@ async function register(req, res, next) {
       data: { name, email, passwordHash, role: role || 'COLLABORATOR', phone: phone || null },
       select: { id: true, name: true, email: true, role: true, phone: true, createdAt: true },
     });
+
+    // Envia boas-vindas com credenciais por e-mail e WhatsApp
+    sendWelcomeNotification({ userId: user.id, name, email, password, phone }).catch(err =>
+      console.error('[Welcome] Erro ao enviar notificação:', err.message)
+    );
 
     return res.status(201).json({ user });
   } catch (err) {
