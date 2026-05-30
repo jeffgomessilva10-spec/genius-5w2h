@@ -7,10 +7,10 @@ async function listProjects(req, res, next) {
   try {
     const { role, id: userId } = req.user;
 
-    // Clientes só veem projetos vinculados
-    const where = role === 'CLIENT'
-      ? { users: { some: { userId } }, isActive: true }
-      : { isActive: true };
+    // Clientes e colaboradores só veem projetos vinculados; admins veem todos
+    const where = role === 'ADMIN'
+      ? { isActive: true }
+      : { users: { some: { userId } }, isActive: true };
 
     const projects = await prisma.project.findMany({
       where,
