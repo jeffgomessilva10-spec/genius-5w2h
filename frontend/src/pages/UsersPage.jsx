@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { usersAPI, authAPI } from '../services/api';
 import Sidebar from '../components/layout/Sidebar';
-import { Plus, Loader2, Trash2, Phone, Mail, UserCheck, UserX, Search } from 'lucide-react';
+import { Plus, Loader2, Trash2, Phone, Mail, Search, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
@@ -15,6 +15,7 @@ export default function UsersPage() {
   const [loading,  setLoading]  = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [saving,   setSaving]   = useState(false);
+  const [showPwd,  setShowPwd]  = useState(false);
   const [search,   setSearch]   = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'COLLABORATOR', phone: '' });
@@ -125,7 +126,12 @@ export default function UsersPage() {
                   </div>
                   <div>
                     <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#374151', display: 'block', marginBottom: 5 }}>Senha *</label>
-                    <input className="input" type="password" placeholder="Mínimo 6 caracteres" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} style={{ border: '1.5px solid #E5E7EB' }} />
+                    <div style={{ position: 'relative' }}>
+                <input className="input" type={showPwd ? 'text' : 'password'} placeholder="Mínimo 6 caracteres" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} style={{ border: '1.5px solid #E5E7EB', paddingRight: 40 }} />
+                <button type="button" onClick={() => setShowPwd(!showPwd)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}>
+                  {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
                   </div>
                   <div>
                     <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#374151', display: 'block', marginBottom: 5 }}>WhatsApp</label>

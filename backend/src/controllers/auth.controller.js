@@ -62,7 +62,22 @@ async function register(req, res, next) {
     const { name, email, password, role, phone } = req.body;
 
     const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
+
+    // Se já existe mas está inativo, reativa com os novos dados
+    if (existing && !existing.isActive) {
+      const passwordHash = await bcrypt.hash(password, 12);
+      const user = await prisma.user.update({
+        where: { email },
+        data: { name, passwordHash, role: role || existing.role, phone: phone || null, isActive: true },
+        select: { id: true, name: true, email: true, role: true, phone: true, createdAt: true },
+      });
+      sendWelcomeNotification({ userId: user.id, name, email, password, phone }).catch(err =>
+        console.error('[Welcome] Erro ao enviar notificação:', err.message)
+      );
+      return res.status(201).json({ user });
+    }
+
+    if (existing && existing.isActive) {
       return res.status(409).json({ error: 'E-mail já cadastrado.' });
     }
 
