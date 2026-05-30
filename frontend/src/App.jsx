@@ -20,6 +20,7 @@ const ExecutiveDashboard = lazy(() => import('./pages/ExecutiveDashboard'));
 const OperationalDashboard = lazy(() => import('./pages/OperationalDashboard'));
 const GovernancePage     = lazy(() => import('./pages/GovernancePage'));
 const AnalyticsPage      = lazy(() => import('./pages/AnalyticsPage'));
+const ProfilePage        = lazy(() => import('./pages/ProfilePage'));
 
 const Loading = () => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#F3F4F6' }}>
@@ -85,6 +86,7 @@ export default function App() {
             <Route path="/activities/new"      element={<CollaboratorRoute><ActivityForm /></CollaboratorRoute>} />
             <Route path="/activities/:id/edit" element={<CollaboratorRoute><ActivityForm /></CollaboratorRoute>} />
             <Route path="/client"     element={<PrivateRoute><ClientDashboard /></PrivateRoute>} />
+            <Route path="/profile"    element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
             <Route path="*"           element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

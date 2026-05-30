@@ -154,12 +154,12 @@ export default function Sidebar() {
           <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#F04E00', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.85rem', flexShrink: 0 }}>
             {user?.name?.[0]?.toUpperCase()}
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <NavLink to="/profile" style={{ flex: 1, minWidth: 0, textDecoration: 'none' }}>
             <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name}</div>
-            <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {user?.role === 'ADMIN' ? 'Admin' : user?.role === 'COLLABORATOR' ? 'Colaborador' : 'Cliente'}
+            <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.3px' }}>
+              Meu Perfil →
             </div>
-          </div>
+          </NavLink>
           <button onClick={handleLogout} title="Sair" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.35)', padding: 4, display: 'flex', borderRadius: 6 }}
             onMouseEnter={e => e.currentTarget.style.color = '#F04E00'}
             onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.35)'}>
