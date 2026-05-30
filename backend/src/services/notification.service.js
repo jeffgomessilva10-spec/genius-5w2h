@@ -1,9 +1,17 @@
 // src/services/notification.service.js
 const prisma = require('../prisma/client');
 
-// ── E-mail via Resend ────────────────────────────
-const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+// ── E-mail via Brevo (Sendinblue) SMTP ──────────
+const nodemailer = require('nodemailer');
+const transporter = nodemailer.createTransport({
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_USER,
+    pass: process.env.BREVO_SMTP_KEY,
+  },
+});
 
 // ── WhatsApp via Twilio ──────────────────────────
 async function sendWhatsApp(phone, message) {
@@ -34,10 +42,10 @@ async function sendNotification({ userId, type, title, message, activityId, sent
   const { email, name, phone } = notification.user;
   const whatsappMsg = `🔔 *Genius Consultoria*\n*${title}*\n\n${message}`;
 
-  // E-mail via Resend
+  // E-mail via Brevo
   try {
-    await resend.emails.send({
-      from: 'Genius Consultoria <onboarding@resend.dev>',
+    await transporter.sendMail({
+      from: 'Genius Consultoria <noreply@geniusconsultoria.com.br>',
       to: email,
       subject: `[Genius Consultoria] ${title}`,
       html: buildEmailHtml(name, title, message),
