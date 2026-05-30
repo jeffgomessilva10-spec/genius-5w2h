@@ -3,20 +3,18 @@
  * Acesso: ADMIN e EXECUTIVE apenas.
  * Gráficos: Recharts (lazy-loaded para performance).
  */
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../components/layout/Sidebar';
 import { analyticsAPI } from '../services/api';
 import { useIsMobile } from '../hooks/useIsMobile';
 import {
   Users, Clock, TrendingUp, TrendingDown,
-  Activity, BarChart3, Loader2, RefreshCw, AlertTriangle,
+  BarChart3, Loader2, RefreshCw, AlertTriangle,
 } from 'lucide-react';
-
-// Lazy load Recharts para não impactar bundle inicial
-const {
+import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend,
-} = await import('recharts').catch(() => ({}));
+  Tooltip, ResponsiveContainer, Cell,
+} from 'recharts';
 
 const PERIOD_OPTIONS = [
   { value: 7,  label: '7 dias'     },
