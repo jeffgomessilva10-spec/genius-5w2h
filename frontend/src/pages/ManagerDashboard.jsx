@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { projectsAPI, activitiesAPI } from '../services/api';
 import Sidebar from '../components/layout/Sidebar';
 import ActivityCard from '../components/ui/ActivityCard';
-import { Plus, FolderOpen, Search, SlidersHorizontal, Loader2, ChevronRight } from 'lucide-react';
+import { Plus, FolderOpen, Search, SlidersHorizontal, Loader2, ChevronRight, TrendingUp, AlertTriangle, CheckCircle2, DollarSign } from 'lucide-react';
 
 const STATUS_OPTIONS = [
   { value: '',            label: 'Todos os status' },
@@ -67,6 +67,15 @@ export default function ManagerDashboard() {
   }
 
   const activeProj = projects.find(p => p.id === activeProject);
+
+  // Cálculos financeiros baseados nas atividades carregadas
+  const fmt$ = v => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const allActs = activities; // usa as atividades já carregadas
+  const totalInvestido  = allActs.reduce((s, a) => s + (Number(a.howMuch) || 0), 0);
+  const totalAtrasado   = allActs.filter(a => a.status === 'DELAYED').reduce((s, a) => s + (Number(a.howMuch) || 0), 0);
+  const totalAndamento  = allActs.filter(a => a.status === 'IN_PROGRESS').reduce((s, a) => s + (Number(a.howMuch) || 0), 0);
+  const totalConcluido  = allActs.filter(a => a.status === 'DONE').reduce((s, a) => s + (Number(a.howMuch) || 0), 0);
+  const temFinanceiro   = totalInvestido > 0;
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#F3F4F6' }}>
@@ -171,6 +180,62 @@ export default function ManagerDashboard() {
                   {stats.total}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: 4 }}>ver todas</div>
+              </div>
+            </div>
+          )}
+
+          {/* Painel Financeiro */}
+          {temFinanceiro && (
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9CA3AF', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 10 }}>
+                Indicadores Financeiros
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 14 }}>
+                {/* Total investido */}
+                <div style={{ background: '#fff', borderRadius: 12, padding: '18px 20px', border: '1px solid #E5E7EB', borderTop: '3px solid #F04E00', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                    <DollarSign size={14} style={{ color: '#F04E00' }} />
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Total do Projeto</span>
+                  </div>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#F04E00' }}>R$ {fmt$(totalInvestido)}</div>
+                  <div style={{ fontSize: '0.72rem', color: '#9CA3AF', marginTop: 3 }}>orçamento total das atividades</div>
+                </div>
+
+                {/* Em andamento */}
+                {totalAndamento > 0 && (
+                  <div style={{ background: '#fff', borderRadius: 12, padding: '18px 20px', border: '1px solid #E5E7EB', borderTop: '3px solid #2563EB', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                      <TrendingUp size={14} style={{ color: '#2563EB' }} />
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Em Andamento</span>
+                    </div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#2563EB' }}>R$ {fmt$(totalAndamento)}</div>
+                    <div style={{ fontSize: '0.72rem', color: '#9CA3AF', marginTop: 3 }}>{Math.round((totalAndamento / totalInvestido) * 100)}% do orçamento</div>
+                  </div>
+                )}
+
+                {/* Atrasado (em risco) */}
+                {totalAtrasado > 0 && (
+                  <div style={{ background: '#FEF2F2', borderRadius: 12, padding: '18px 20px', border: '1.5px solid #FECACA', borderTop: '3px solid #DC2626', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                      <AlertTriangle size={14} style={{ color: '#DC2626' }} />
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#DC2626', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Em Risco</span>
+                    </div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#DC2626' }}>R$ {fmt$(totalAtrasado)}</div>
+                    <div style={{ fontSize: '0.72rem', color: '#DC2626', marginTop: 3 }}>{Math.round((totalAtrasado / totalInvestido) * 100)}% do orçamento atrasado</div>
+                  </div>
+                )}
+
+                {/* Concluído */}
+                {totalConcluido > 0 && (
+                  <div style={{ background: '#F0FDF4', borderRadius: 12, padding: '18px 20px', border: '1.5px solid #BBF7D0', borderTop: '3px solid #16A34A', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                      <CheckCircle2 size={14} style={{ color: '#16A34A' }} />
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#16A34A', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Concluído</span>
+                    </div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#16A34A' }}>R$ {fmt$(totalConcluido)}</div>
+                    <div style={{ fontSize: '0.72rem', color: '#16A34A', marginTop: 3 }}>{Math.round((totalConcluido / totalInvestido) * 100)}% entregue</div>
+                  </div>
+                )}
               </div>
             </div>
           )}

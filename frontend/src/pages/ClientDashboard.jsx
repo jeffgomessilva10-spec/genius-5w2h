@@ -45,6 +45,9 @@ export default function ClientDashboard() {
   }
 
   const today = new Date();
+  const fmt$ = v => Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const totalInvestido = activities.reduce((s, a) => s + (Number(a.howMuch) || 0), 0);
+  const totalAtrasado  = activities.filter(a => a.status === 'DELAYED').reduce((s, a) => s + (Number(a.howMuch) || 0), 0);
   const delayed = activities.filter(a => a.status === 'DELAYED');
   const done    = activities.filter(a => a.status === 'DONE');
   const inProgress = activities.filter(a => a.status === 'IN_PROGRESS');
@@ -175,6 +178,28 @@ export default function ClientDashboard() {
                 <div style={{ fontSize: '0.78rem', color: 'var(--genius-text-muted)' }}>vencem em 7 dias</div>
               </div>
             </div>
+
+            {/* Indicadores Financeiros */}
+            {totalInvestido > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: totalAtrasado > 0 ? '1fr 1fr' : '1fr', gap: 14, marginBottom: 24 }}>
+                <div style={{ background: '#fff', borderRadius: 12, padding: '18px 20px', border: '1px solid #E5E7EB', borderTop: '3px solid #F04E00', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>
+                    💰 Orçamento Total
+                  </div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#F04E00' }}>R$ {fmt$(totalInvestido)}</div>
+                  <div style={{ fontSize: '0.72rem', color: '#9CA3AF', marginTop: 3 }}>total das atividades do projeto</div>
+                </div>
+                {totalAtrasado > 0 && (
+                  <div style={{ background: '#FEF2F2', borderRadius: 12, padding: '18px 20px', border: '1.5px solid #FECACA', borderTop: '3px solid #DC2626', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#DC2626', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>
+                      ⚠️ Valor em Risco
+                    </div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#DC2626' }}>R$ {fmt$(totalAtrasado)}</div>
+                    <div style={{ fontSize: '0.72rem', color: '#DC2626', marginTop: 3 }}>{Math.round((totalAtrasado / totalInvestido) * 100)}% do orçamento está atrasado</div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Barra de progresso */}
             {total > 0 && (
