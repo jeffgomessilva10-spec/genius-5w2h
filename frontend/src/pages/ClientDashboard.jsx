@@ -184,10 +184,10 @@ export default function ClientDashboard() {
               <div style={{ display: 'grid', gridTemplateColumns: totalAtrasado > 0 ? '1fr 1fr' : '1fr', gap: 14, marginBottom: 24 }}>
                 <div style={{ background: '#fff', borderRadius: 12, padding: '18px 20px', border: '1px solid #E5E7EB', borderTop: '3px solid #F04E00', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                   <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>
-                    💰 Orçamento Total
+                    💰 Envolvido no Projeto
                   </div>
                   <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#F04E00' }}>R$ {fmt$(totalInvestido)}</div>
-                  <div style={{ fontSize: '0.72rem', color: '#9CA3AF', marginTop: 3 }}>total das atividades do projeto</div>
+                  <div style={{ fontSize: '0.72rem', color: '#9CA3AF', marginTop: 3 }}>total envolvido nas atividades</div>
                 </div>
                 {totalAtrasado > 0 && (
                   <div style={{ background: '#FEF2F2', borderRadius: 12, padding: '18px 20px', border: '1.5px solid #FECACA', borderTop: '3px solid #DC2626', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>

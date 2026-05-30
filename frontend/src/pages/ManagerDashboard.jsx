@@ -195,10 +195,10 @@ export default function ManagerDashboard() {
                 <div style={{ background: '#fff', borderRadius: 12, padding: '18px 20px', border: '1px solid #E5E7EB', borderTop: '3px solid #F04E00', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                     <DollarSign size={14} style={{ color: '#F04E00' }} />
-                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Total do Projeto</span>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Envolvido no Projeto</span>
                   </div>
                   <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#F04E00' }}>R$ {fmt$(totalInvestido)}</div>
-                  <div style={{ fontSize: '0.72rem', color: '#9CA3AF', marginTop: 3 }}>orçamento total das atividades</div>
+                  <div style={{ fontSize: '0.72rem', color: '#9CA3AF', marginTop: 3 }}>total envolvido nas atividades</div>
                 </div>
 
                 {/* Em andamento */}
