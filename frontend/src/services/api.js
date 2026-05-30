@@ -135,6 +135,10 @@ export const dashboardAPI = {
   savePrefs:   (prefs)  => api.put('/dashboard/preferences', { preferences: prefs }),
 };
 
+export const ganttAPI = {
+  list: (params) => api.get('/gantt', { params }),
+};
+
 export const analyticsAPI = {
   summary:     ()       => api.get('/analytics/summary'),
   dau:         (p)      => api.get('/analytics/dau',       { params: p }),

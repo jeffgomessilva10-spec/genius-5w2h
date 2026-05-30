@@ -33,6 +33,7 @@ const aiRoutes           = require('./routes/ai.routes');
 const dashboardRoutes    = require('./routes/dashboard.routes');
 const governanceRoutes   = require('./routes/governance.routes');
 const analyticsRoutes    = require('./routes/analytics.routes');
+const ganttRoutes        = require('./routes/gantt.routes');
 
 const app = express();
 
@@ -131,6 +132,7 @@ app.use('/api/ai',             aiRoutes);
 app.use('/api/dashboard',      dashboardRoutes);
 app.use('/api/governance',     governanceRoutes);
 app.use('/api/analytics',     analyticsRoutes);
+app.use('/api/gantt',         ganttRoutes);
 
 // ── Handler de erros global ─────────────────────────────
 app.use((err, req, res, next) => {
