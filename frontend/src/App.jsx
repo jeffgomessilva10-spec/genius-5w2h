@@ -15,9 +15,7 @@ import PdcaPage from './pages/PdcaPage';
 import ExecutiveDashboard from './pages/ExecutiveDashboard';
 import OperationalDashboard from './pages/OperationalDashboard';
 import GovernancePage from './pages/GovernancePage';
-import SkipLink from './components/ui/SkipLink';
 import AnalyticsPage from './pages/AnalyticsPage';
-import ConsentBanner from './components/ui/ConsentBanner';
 import './styles/globals.css';
 
 // Guard: só autenticados
@@ -57,8 +55,6 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <SkipLink />
-        <ConsentBanner />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<PrivateRoute><RoleRouter /></PrivateRoute>} />
