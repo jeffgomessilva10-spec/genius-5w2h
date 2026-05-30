@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, FolderKanban, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Users, LogOut, GanttChartSquare } from 'lucide-react';
 import NotificationBell from '../ui/NotificationBell';
 
 export default function Sidebar() {
@@ -11,8 +11,9 @@ export default function Sidebar() {
 
   const links = isCollaborator
     ? [
-        { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-        { to: '/projects',  icon: FolderKanban,   label: 'Projetos'  },
+        { to: '/dashboard', icon: LayoutDashboard,    label: 'Dashboard' },
+        { to: '/projects',  icon: FolderKanban,      label: 'Projetos'  },
+        { to: '/gantt',     icon: GanttChartSquare,  label: 'Gantt'     },
         ...(isAdmin ? [{ to: '/users', icon: Users, label: 'Usuários' }] : []),
       ]
     : [{ to: '/client', icon: LayoutDashboard, label: 'Meus Projetos' }];

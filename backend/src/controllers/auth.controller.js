@@ -58,7 +58,7 @@ async function register(req, res, next) {
       return res.status(422).json({ errors: errors.array() });
     }
 
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, phone } = req.body;
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -68,8 +68,8 @@ async function register(req, res, next) {
     const passwordHash = await bcrypt.hash(password, 12);
 
     const user = await prisma.user.create({
-      data: { name, email, passwordHash, role: role || 'COLLABORATOR' },
-      select: { id: true, name: true, email: true, role: true, createdAt: true },
+      data: { name, email, passwordHash, role: role || 'COLLABORATOR', phone: phone || null },
+      select: { id: true, name: true, email: true, role: true, phone: true, createdAt: true },
     });
 
     return res.status(201).json({ user });

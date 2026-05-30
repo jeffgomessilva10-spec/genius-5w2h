@@ -11,7 +11,7 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'COLLABORATOR' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'COLLABORATOR', phone: '' });
 
   useEffect(() => { loadUsers(); }, []);
 
@@ -32,7 +32,7 @@ export default function UsersPage() {
     try {
       await authAPI.register(form);
       setShowForm(false);
-      setForm({ name: '', email: '', password: '', role: 'COLLABORATOR' });
+      setForm({ name: '', email: '', password: '', role: 'COLLABORATOR', phone: '' });
       loadUsers();
     } catch (err) {
       alert(err.response?.data?.error || 'Erro ao criar usuário.');
@@ -66,6 +66,7 @@ export default function UsersPage() {
               <input className="input" placeholder="Nome completo *" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
               <input className="input" type="email" placeholder="E-mail *" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
               <input className="input" type="password" placeholder="Senha *" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+              <input className="input" type="tel" placeholder="WhatsApp (ex: +5511999999999)" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
               <select className="input" value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}>
                 <option value="COLLABORATOR">Colaborador</option>
                 <option value="CLIENT">Cliente</option>

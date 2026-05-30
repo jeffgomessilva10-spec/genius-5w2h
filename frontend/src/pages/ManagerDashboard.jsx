@@ -50,11 +50,12 @@ export default function ManagerDashboard() {
     } finally { setLoading(false); }
   }
 
-  async function applyFilters() {
+  async function applyFilters(overrideStatus) {
     if (!activeProject) return;
     setLoading(true);
+    const st = overrideStatus !== undefined ? overrideStatus : statusFilter;
     try {
-      const { data } = await activitiesAPI.list({ search, status: statusFilter });
+      const { data } = await activitiesAPI.list({ search, status: st });
       setActivities(data.activities);
     } finally { setLoading(false); }
   }
@@ -129,35 +130,47 @@ export default function ManagerDashboard() {
           {/* Cards de estatísticas */}
           {stats.total > 0 && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 14, marginBottom: 28 }}>
-              {stats.stats.map(s => (
-                <div key={s.status} style={{
-                  background: '#fff', borderRadius: 12, padding: '18px 20px',
-                  border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                  borderTop: `3px solid ${STATUS_COLOR[s.status] || '#9CA3AF'}`,
+              {stats.stats.map(s => {
+                const isActive = statusFilter === s.status;
+                return (
+                  <div key={s.status}
+                    onClick={() => { const ns = isActive ? '' : s.status; setStatusFilter(ns); applyFilters(ns); }}
+                    style={{
+                      background: isActive ? STATUS_BG[s.status] : '#fff',
+                      borderRadius: 12, padding: '18px 20px', cursor: 'pointer',
+                      border: `1.5px solid ${isActive ? STATUS_COLOR[s.status] : '#E5E7EB'}`,
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                      borderTop: `3px solid ${STATUS_COLOR[s.status] || '#9CA3AF'}`,
+                      transition: 'all 0.15s',
+                    }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 8 }}>
+                      {STATUS_LABEL[s.status] || s.status}
+                    </div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: STATUS_COLOR[s.status] || '#374151', lineHeight: 1 }}>
+                      {s._count?.status || 0}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: 4 }}>
+                      {Math.round(((s._count?.status || 0) / stats.total) * 100)}% · {isActive ? 'clique para limpar' : 'clique para filtrar'}
+                    </div>
+                  </div>
+                );
+              })}
+              <div
+                onClick={() => { setStatusFilter(''); applyFilters(''); }}
+                style={{
+                  background: statusFilter === '' ? '#FFF3EE' : '#fff',
+                  borderRadius: 12, padding: '18px 20px', cursor: 'pointer',
+                  border: `1.5px solid ${statusFilter === '' ? '#F04E00' : '#E5E7EB'}`,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                  borderTop: '3px solid #F04E00', transition: 'all 0.15s',
                 }}>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 8 }}>
-                    {STATUS_LABEL[s.status] || s.status}
-                  </div>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: STATUS_COLOR[s.status] || '#374151', lineHeight: 1 }}>
-                    {s._count?.status || 0}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: 4 }}>
-                    {Math.round(((s._count?.status || 0) / stats.total) * 100)}% do total
-                  </div>
-                </div>
-              ))}
-              <div style={{
-                background: '#fff', borderRadius: 12, padding: '18px 20px',
-                border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                borderTop: '3px solid #F04E00',
-              }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 8 }}>
                   Total
                 </div>
                 <div style={{ fontSize: '2rem', fontWeight: 800, color: '#F04E00', lineHeight: 1 }}>
                   {stats.total}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: 4 }}>atividades</div>
+                <div style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: 4 }}>ver todas</div>
               </div>
             </div>
           )}
