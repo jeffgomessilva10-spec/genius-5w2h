@@ -141,6 +141,7 @@ export default function ManagerDashboard() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 14, marginBottom: 28 }}>
               {stats.stats.map(s => {
                 const isActive = statusFilter === s.status;
+                const valorStatus = activities.filter(a => a.status === s.status).reduce((acc, a) => acc + (Number(a.howMuch) || 0), 0);
                 return (
                   <div key={s.status}
                     onClick={() => { const ns = isActive ? '' : s.status; setStatusFilter(ns); applyFilters(ns); }}
@@ -158,8 +159,13 @@ export default function ManagerDashboard() {
                     <div style={{ fontSize: '2rem', fontWeight: 800, color: STATUS_COLOR[s.status] || '#374151', lineHeight: 1 }}>
                       {s._count?.status || 0}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: 4 }}>
-                      {Math.round(((s._count?.status || 0) / stats.total) * 100)}% · {isActive ? 'clique para limpar' : 'clique para filtrar'}
+                    {valorStatus > 0 && (
+                      <div style={{ fontSize: '0.78rem', fontWeight: 700, color: STATUS_COLOR[s.status], marginTop: 4 }}>
+                        R$ {fmt$(valorStatus)}
+                      </div>
+                    )}
+                    <div style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: 2 }}>
+                      {Math.round(((s._count?.status || 0) / stats.total) * 100)}% · {isActive ? 'limpar' : 'filtrar'}
                     </div>
                   </div>
                 );
@@ -179,7 +185,12 @@ export default function ManagerDashboard() {
                 <div style={{ fontSize: '2rem', fontWeight: 800, color: '#F04E00', lineHeight: 1 }}>
                   {stats.total}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: 4 }}>ver todas</div>
+                {totalInvestido > 0 && (
+                  <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#F04E00', marginTop: 4 }}>
+                    R$ {fmt$(totalInvestido)}
+                  </div>
+                )}
+                <div style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: 2 }}>ver todas</div>
               </div>
             </div>
           )}
