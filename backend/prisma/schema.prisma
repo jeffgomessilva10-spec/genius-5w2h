@@ -237,8 +237,6 @@ model AuditLog {
   createdAt  DateTime    @default(now()) @map("created_at")
 
   user       User        @relation(fields: [userId], references: [id])
-  activity   Activity?   @relation(fields: [entityId], references: [id], map: "audit_activity_fk")
-  project    Project?    @relation(fields: [entityId], references: [id], map: "audit_project_fk")
 
   @@map("audit_logs")
 }
