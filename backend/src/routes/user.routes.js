@@ -37,13 +37,22 @@ router.put('/me', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// Desativar usuário (ADMIN)
+// Desativar usuário (ADMIN) — remove de projetos e atividades
 router.delete('/:id', authorize('ADMIN'), async (req, res, next) => {
   try {
-    await prisma.user.update({
-      where: { id: req.params.id },
-      data: { isActive: false },
-    });
+    const { id } = req.params;
+
+    await prisma.$transaction([
+      // 1. Desativa o usuário
+      prisma.user.update({ where: { id }, data: { isActive: false } }),
+      // 2. Remove de todos os projetos vinculados
+      prisma.projectUser.deleteMany({ where: { userId: id } }),
+      // 3. Remove como responsável das atividades
+      prisma.activity.updateMany({ where: { responsibleId: id }, data: { responsibleId: null } }),
+      // 4. Marca notificações como lidas (limpeza)
+      prisma.notification.updateMany({ where: { userId: id }, data: { isRead: true } }),
+    ]);
+
     res.status(204).send();
   } catch (err) { next(err); }
 });
