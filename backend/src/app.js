@@ -12,8 +12,12 @@ const categoryRoutes = require('./routes/category.routes');
 const activityRoutes = require('./routes/activity.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const userRoutes = require('./routes/user.routes');
-const commentRoutes = require('./routes/comment.routes');
-const auditRoutes = require('./routes/audit.routes');
+const commentRoutes    = require('./routes/comment.routes');
+const auditRoutes      = require('./routes/audit.routes');
+const raciRoutes       = require('./routes/raci.routes');
+const timeEntryRoutes  = require('./routes/timeentry.routes');
+const attachmentRoutes = require('./routes/attachment.routes');
+const documentRoutes   = require('./routes/document.routes');
 
 const app = express();
 
@@ -51,9 +55,13 @@ app.use('/api/users',         userRoutes);
 app.use('/api/projects',      projectRoutes);
 app.use('/api/categories',    categoryRoutes);
 app.use('/api/activities',    activityRoutes);
-app.use('/api/activities/:activityId/comments', commentRoutes);
+app.use('/api/activities/:activityId/comments',     commentRoutes);
+app.use('/api/activities/:activityId/raci',         raciRoutes);
+app.use('/api/activities/:activityId/time-entries', timeEntryRoutes);
+app.use('/api/activities/:activityId/attachments',  attachmentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/audit',         auditRoutes);
+app.use('/api/documents',     documentRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

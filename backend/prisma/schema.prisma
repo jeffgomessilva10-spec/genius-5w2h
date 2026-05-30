@@ -37,6 +37,20 @@ enum RiskLevel {
   CRITICAL
 }
 
+enum RaciRole {
+  RESPONSIBLE   // executa
+  ACCOUNTABLE   // responsável final
+  CONSULTED     // consultado
+  INFORMED      // informado
+}
+
+enum AttachmentType {
+  IMAGE
+  DOCUMENT
+  LINK
+  VIDEO
+}
+
 enum AuditAction {
   CREATE
   UPDATE
@@ -66,6 +80,10 @@ model User {
   notificationsSent Notification[]  @relation("SentNotifications")
   comments          Comment[]
   auditLogs         AuditLog[]
+  raciEntries       Raci[]
+  timeEntries       TimeEntry[]
+  attachments       Attachment[]
+  documents         Document[]
 
   @@map("users")
 }
@@ -86,6 +104,7 @@ model Project {
   categories  Category[]
   users       ProjectUser[]
   auditLogs   AuditLog[]
+  documents   Document[]
 
   @@map("projects")
 }
@@ -164,6 +183,10 @@ model Activity {
   notifications Notification[]
   comments      Comment[]
   auditLogs     AuditLog[]
+  raciEntries   Raci[]
+  timeEntries   TimeEntry[]
+  attachments   Attachment[]
+  documents     Document[]
 
   @@map("activities")
 }
@@ -204,6 +227,82 @@ model AuditLog {
   project    Project?    @relation(fields: [entityId], references: [id], map: "audit_project_fk")
 
   @@map("audit_logs")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: RACI por atividade
+// ─────────────────────────────────────────
+model Raci {
+  id         String   @id @default(uuid())
+  activityId String   @map("activity_id")
+  userId     String   @map("user_id")
+  role       RaciRole
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([activityId, userId])
+  @@map("raci")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Apontamento de Horas
+// ─────────────────────────────────────────
+model TimeEntry {
+  id          String   @id @default(uuid())
+  activityId  String   @map("activity_id")
+  userId      String   @map("user_id")
+  hours       Decimal
+  date        DateTime
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("time_entries")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Anexo / Evidência
+// ─────────────────────────────────────────
+model Attachment {
+  id           String         @id @default(uuid())
+  activityId   String         @map("activity_id")
+  name         String
+  url          String         // URL do arquivo ou link externo
+  type         AttachmentType @default(DOCUMENT)
+  description  String?
+  uploadedById String         @map("uploaded_by_id")
+  createdAt    DateTime       @default(now()) @map("created_at")
+
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  uploadedBy User     @relation(fields: [uploadedById], references: [id])
+
+  @@map("attachments")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Documento de Projeto
+// ─────────────────────────────────────────
+model Document {
+  id           String   @id @default(uuid())
+  projectId    String   @map("project_id")
+  activityId   String?  @map("activity_id")
+  name         String
+  url          String
+  version      String   @default("1.0")
+  description  String?
+  uploadedById String   @map("uploaded_by_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  activity   Activity? @relation(fields: [activityId], references: [id], onDelete: SetNull)
+  uploadedBy User      @relation(fields: [uploadedById], references: [id])
+
+  @@map("documents")
 }
 
 // ─────────────────────────────────────────

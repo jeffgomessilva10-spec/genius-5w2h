@@ -9,6 +9,7 @@ import ActivityForm from './pages/ActivityForm';
 import ProjectsPage from './pages/ProjectsPage';
 import UsersPage from './pages/UsersPage';
 import GanttPage from './pages/GanttPage';
+import DocumentsPage from './pages/DocumentsPage';
 import './styles/globals.css';
 
 // Guard: só autenticados
@@ -59,6 +60,9 @@ export default function App() {
           } />
           <Route path="/gantt" element={
             <CollaboratorRoute><GanttPage /></CollaboratorRoute>
+          } />
+          <Route path="/documents" element={
+            <CollaboratorRoute><DocumentsPage /></CollaboratorRoute>
           } />
           <Route path="/activities/new" element={
             <CollaboratorRoute><ActivityForm /></CollaboratorRoute>

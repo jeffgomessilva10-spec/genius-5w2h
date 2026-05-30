@@ -79,4 +79,29 @@ export const auditAPI = {
   list: (params) => api.get('/audit', { params }),
 };
 
+export const raciAPI = {
+  list:   (activityId)         => api.get(`/activities/${activityId}/raci`),
+  upsert: (activityId, data)   => api.post(`/activities/${activityId}/raci`, data),
+  remove: (activityId, userId) => api.delete(`/activities/${activityId}/raci/${userId}`),
+};
+
+export const timeEntryAPI = {
+  list:   (activityId)       => api.get(`/activities/${activityId}/time-entries`),
+  create: (activityId, data) => api.post(`/activities/${activityId}/time-entries`, data),
+  delete: (activityId, id)   => api.delete(`/activities/${activityId}/time-entries/${id}`),
+};
+
+export const attachmentAPI = {
+  list:   (activityId)       => api.get(`/activities/${activityId}/attachments`),
+  create: (activityId, data) => api.post(`/activities/${activityId}/attachments`, data),
+  delete: (activityId, id)   => api.delete(`/activities/${activityId}/attachments/${id}`),
+};
+
+export const documentAPI = {
+  list:   (params)     => api.get('/documents', { params }),
+  create: (data)       => api.post('/documents', data),
+  update: (id, data)   => api.put(`/documents/${id}`, data),
+  delete: (id)         => api.delete(`/documents/${id}`),
+};
+
 export default api;
