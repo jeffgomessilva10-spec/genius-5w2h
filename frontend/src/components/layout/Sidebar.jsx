@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, FolderKanban, Users, LogOut, GanttChartSquare, Menu, X, FileText, Target, RefreshCw, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Users, LogOut, GanttChartSquare, Menu, X, FileText, Target, RefreshCw, TrendingUp, ShieldCheck } from 'lucide-react';
 import NotificationBell from '../ui/NotificationBell';
 import { useState, useEffect } from 'react';
 
@@ -27,6 +27,7 @@ export default function Sidebar() {
         { to: '/documents',  icon: FileText,         label: 'Documentos'  },
         { to: '/okr',        icon: Target,           label: 'OKRs'        },
         { to: '/pdca',       icon: RefreshCw,        label: 'PDCA'        },
+        { to: '/governance', icon: ShieldCheck,      label: 'Governança'  },
         ...(isAdmin ? [{ to: '/users', icon: Users, label: 'Usuários' }] : []),
       ]
     : [{ to: '/client', icon: LayoutDashboard, label: 'Meus Projetos' }];

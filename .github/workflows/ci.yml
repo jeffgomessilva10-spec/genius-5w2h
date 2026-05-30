@@ -1,0 +1,154 @@
+name: CI — Genius 5W2H
+
+on:
+  push:
+    branches: [master, main, develop]
+  pull_request:
+    branches: [master, main]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ──────────────────────────────────────────────────────
+  # 1. Lint e testes unitários (sem banco)
+  # ──────────────────────────────────────────────────────
+  unit-tests:
+    name: Testes Unitários
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependências
+        working-directory: backend
+        run: npm ci
+
+      - name: Rodar testes unitários (sem banco)
+        working-directory: backend
+        run: |
+          node tests/unit/auth.test.js
+          node tests/unit/activity.test.js
+          node tests/unit/phase1.test.js
+          node tests/unit/phase2.test.js
+          node tests/unit/phase3.test.js
+          node tests/unit/dashboard.test.js
+          node tests/unit/security.test.js
+          node tests/unit/governance.test.js
+
+  # ──────────────────────────────────────────────────────
+  # 2. Build do frontend
+  # ──────────────────────────────────────────────────────
+  frontend-build:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar e buildar
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload artefato de build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          retention-days: 7
+
+  # ──────────────────────────────────────────────────────
+  # 3. Análise de segurança (SAST simplificado)
+  # ──────────────────────────────────────────────────────
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Auditoria de dependências (npm audit)
+        working-directory: backend
+        run: npm audit --audit-level=high || true
+
+      - name: Auditoria frontend
+        working-directory: frontend
+        run: npm audit --audit-level=high || true
+
+      # Snyk SAST — ative configurando SNYK_TOKEN nos secrets do GitHub
+      - name: Snyk SAST (opcional)
+        if: ${{ env.SNYK_TOKEN != '' }}
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --file=backend/package.json
+
+  # ──────────────────────────────────────────────────────
+  # 4. Geração de SBOM (Software Bill of Materials)
+  # ──────────────────────────────────────────────────────
+  sbom:
+    name: Gerar SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Instalar CycloneDX
+        run: npm install -g @cyclonedx/cyclonedx-npm
+
+      - name: Gerar SBOM backend
+        working-directory: backend
+        run: |
+          npm ci
+          cyclonedx-npm --output-file sbom-backend.json || echo "SBOM generation attempted"
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: backend/sbom-backend.json
+          retention-days: 30
+        continue-on-error: true
+
+  # ──────────────────────────────────────────────────────
+  # 5. Integração com Railway (deploy automático)
+  # ──────────────────────────────────────────────────────
+  # Railway já faz deploy automático ao push no master.
+  # Este job notifica o status após CI.
+  notify-deploy:
+    name: Notificar Deploy
+    runs-on: ubuntu-latest
+    needs: [unit-tests, frontend-build, security-scan]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    steps:
+      - name: Deploy via Railway (automático)
+        run: |
+          echo "✅ CI passou. Railway detectará o push e fará o deploy automaticamente."
+          echo "📊 Branch: ${{ github.ref }}"
+          echo "👤 Autor: ${{ github.actor }}"
+          echo "📝 Commit: ${{ github.sha }}"

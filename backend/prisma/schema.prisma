@@ -89,6 +89,10 @@ model User {
   objectives        Objective[]
   pdcaReviews       PdcaReview[]
   lessons           LessonLearned[]
+  consents          Consent[]
+  glossaryCreated   GlossaryTerm[]  @relation("GlossaryCreated")
+  glossaryUpdated   GlossaryTerm[]  @relation("GlossaryUpdated")
+  dataPolicies      DataPolicy[]
 
   @@map("users")
 }
@@ -236,6 +240,64 @@ model AuditLog {
   project    Project?    @relation(fields: [entityId], references: [id], map: "audit_project_fk")
 
   @@map("audit_logs")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Glossário de Negócios
+// ─────────────────────────────────────────
+model GlossaryTerm {
+  id          String   @id @default(uuid())
+  term        String   @unique
+  definition  String
+  category    String   @default("Geral")
+  examples    String?
+  relatedTo   String?  @map("related_to")
+  createdById String   @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User  @relation("GlossaryCreated", fields: [createdById], references: [id])
+  updatedBy User? @relation("GlossaryUpdated", fields: [updatedById], references: [id])
+
+  @@map("glossary_terms")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Política de Dados
+// ─────────────────────────────────────────
+model DataPolicy {
+  id          String   @id @default(uuid())
+  title       String
+  category    String   // "Classificação", "Acesso", "Retenção", "Privacidade"
+  content     String
+  version     String   @default("1.0")
+  isActive    Boolean  @default(true) @map("is_active")
+  effectiveAt DateTime @default(now()) @map("effective_at")
+  createdById String   @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User @relation(fields: [createdById], references: [id])
+
+  @@map("data_policies")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Consentimento LGPD
+// ─────────────────────────────────────────
+model Consent {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  type        String   // "terms", "privacy", "marketing"
+  accepted    Boolean
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("consents")
 }
 
 // ─────────────────────────────────────────

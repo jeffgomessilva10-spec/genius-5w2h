@@ -14,6 +14,8 @@ import OKRPage from './pages/OKRPage';
 import PdcaPage from './pages/PdcaPage';
 import ExecutiveDashboard from './pages/ExecutiveDashboard';
 import OperationalDashboard from './pages/OperationalDashboard';
+import GovernancePage from './pages/GovernancePage';
+import SkipLink from './components/ui/SkipLink';
 import './styles/globals.css';
 
 // Guard: só autenticados
@@ -53,6 +55,7 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <SkipLink />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<PrivateRoute><RoleRouter /></PrivateRoute>} />
@@ -84,6 +87,9 @@ export default function App() {
           } />
           <Route path="/pdca" element={
             <CollaboratorRoute><PdcaPage /></CollaboratorRoute>
+          } />
+          <Route path="/governance" element={
+            <PrivateRoute><GovernancePage /></PrivateRoute>
           } />
           <Route path="/activities/new" element={
             <CollaboratorRoute><ActivityForm /></CollaboratorRoute>
