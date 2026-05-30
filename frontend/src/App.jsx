@@ -16,6 +16,8 @@ import ExecutiveDashboard from './pages/ExecutiveDashboard';
 import OperationalDashboard from './pages/OperationalDashboard';
 import GovernancePage from './pages/GovernancePage';
 import SkipLink from './components/ui/SkipLink';
+import AnalyticsPage from './pages/AnalyticsPage';
+import ConsentBanner from './components/ui/ConsentBanner';
 import './styles/globals.css';
 
 // Guard: só autenticados
@@ -56,6 +58,7 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <SkipLink />
+        <ConsentBanner />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<PrivateRoute><RoleRouter /></PrivateRoute>} />
@@ -90,6 +93,9 @@ export default function App() {
           } />
           <Route path="/governance" element={
             <PrivateRoute><GovernancePage /></PrivateRoute>
+          } />
+          <Route path="/analytics" element={
+            <ExecutiveRoute><AnalyticsPage /></ExecutiveRoute>
           } />
           <Route path="/activities/new" element={
             <CollaboratorRoute><ActivityForm /></CollaboratorRoute>

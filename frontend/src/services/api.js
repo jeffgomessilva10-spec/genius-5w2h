@@ -133,4 +133,16 @@ export const dashboardAPI = {
   savePrefs:   (prefs)  => api.put('/dashboard/preferences', { preferences: prefs }),
 };
 
+export const analyticsAPI = {
+  summary:     ()       => api.get('/analytics/summary'),
+  dau:         (p)      => api.get('/analytics/dau',       { params: p }),
+  active:      ()       => api.get('/analytics/active'),
+  sessions:    (p)      => api.get('/analytics/sessions',  { params: p }),
+  retention:   (p)      => api.get('/analytics/retention', { params: p }),
+  features:    (p)      => api.get('/analytics/features',  { params: p }),
+  heatmap:     (p)      => api.get('/analytics/heatmap',   { params: p }),
+  churn:       (p)      => api.get('/analytics/churn',     { params: p }),
+  deleteMyData:()       => api.delete('/analytics/my-data'),
+};
+
 export default api;

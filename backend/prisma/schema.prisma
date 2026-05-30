@@ -93,6 +93,7 @@ model User {
   glossaryCreated   GlossaryTerm[]  @relation("GlossaryCreated")
   glossaryUpdated   GlossaryTerm[]  @relation("GlossaryUpdated")
   dataPolicies      DataPolicy[]
+  analyticEvents    AnalyticEvent[]
 
   @@map("users")
 }
@@ -240,6 +241,41 @@ model AuditLog {
   project    Project?    @relation(fields: [entityId], references: [id], map: "audit_project_fk")
 
   @@map("audit_logs")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Eventos Analíticos
+// ─────────────────────────────────────────
+model AnalyticEvent {
+  id          String   @id @default(uuid())
+
+  // userId pode ser nulo para usuários não autenticados (LGPD: pseudonimização)
+  userId      String?  @map("user_id")
+  // sessionId agrupa eventos de uma mesma sessão
+  sessionId   String   @map("session_id")
+  // Tipo do evento: PAGE_VIEW, ACTION, SESSION_START, SESSION_END, FEATURE_USE
+  eventType   String   @map("event_type")
+  // Módulo/página onde ocorreu: dashboard, projects, gantt, raci, etc.
+  module      String?
+  // Ação específica: create_activity, edit_activity, view_gantt, etc.
+  action      String?
+  // Metadados adicionais em JSON (sem PII)
+  context     Json?
+  // Duração em ms (para SESSION_END)
+  durationMs  Int?     @map("duration_ms")
+  // Papel do usuário no momento do evento (anonimizado, sem nome)
+  userRole    String?  @map("user_role")
+  // IP hash (pseudonimizado — não o IP real)
+  ipHash      String?  @map("ip_hash")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([eventType, createdAt])
+  @@index([sessionId])
+  @@index([module, createdAt])
+  @@map("analytic_events")
 }
 
 // ─────────────────────────────────────────

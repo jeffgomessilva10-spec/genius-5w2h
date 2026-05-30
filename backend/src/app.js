@@ -32,6 +32,7 @@ const pdcaRoutes         = require('./routes/pdca.routes');
 const aiRoutes           = require('./routes/ai.routes');
 const dashboardRoutes    = require('./routes/dashboard.routes');
 const governanceRoutes   = require('./routes/governance.routes');
+const analyticsRoutes    = require('./routes/analytics.routes');
 
 const app = express();
 
@@ -129,6 +130,7 @@ app.use('/api/pdca',           pdcaRoutes);
 app.use('/api/ai',             aiRoutes);
 app.use('/api/dashboard',      dashboardRoutes);
 app.use('/api/governance',     governanceRoutes);
+app.use('/api/analytics',     analyticsRoutes);
 
 // ── Handler de erros global ─────────────────────────────
 app.use((err, req, res, next) => {
