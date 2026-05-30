@@ -1,0 +1,182 @@
+// Genius Consultoria – Plano de Ação 5W2H
+// Prisma Schema for PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────
+// ENUM: papel do usuário no sistema
+// ─────────────────────────────────────────
+enum Role {
+  COLLABORATOR   // interno: cria/edita atividades
+  CLIENT         // externo: somente visualiza
+  ADMIN          // acesso total
+}
+
+// ─────────────────────────────────────────
+// ENUM: status da atividade 5W2H
+// ─────────────────────────────────────────
+enum ActivityStatus {
+  PLANNED       // planejado
+  IN_PROGRESS   // em andamento
+  DELAYED       // atrasado
+  DONE          // finalizado
+}
+
+// ─────────────────────────────────────────
+// ENUM: tipo de notificação enviada
+// ─────────────────────────────────────────
+enum NotificationType {
+  DEADLINE_WARNING   // aviso de prazo próximo
+  DEADLINE_EXCEEDED  // prazo ultrapassado
+  STATUS_CHANGE      // mudança de status
+  RISK_ALERT         // alerta de risco
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Usuário
+// ─────────────────────────────────────────
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  role          Role      @default(COLLABORATOR)
+  avatarUrl     String?   @map("avatar_url")
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relações
+  activities          Activity[]      // atividades onde é responsável
+  projects            ProjectUser[]   // projetos acessíveis (clientes)
+  notifications       Notification[]
+  notificationsSent   Notification[]  @relation("SentNotifications")
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Projeto
+// ─────────────────────────────────────────
+model Project {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  startDate   DateTime? @map("start_date")
+  endDate     DateTime? @map("end_date")
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relações
+  categories  Category[]
+  users       ProjectUser[]   // clientes vinculados
+
+  @@map("projects")
+}
+
+// ─────────────────────────────────────────
+// TABELA DE JUNÇÃO: Projeto ↔ Usuário (clientes)
+// ─────────────────────────────────────────
+model ProjectUser {
+  projectId   String   @map("project_id")
+  userId      String   @map("user_id")
+  assignedAt  DateTime @default(now()) @map("assigned_at")
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, userId])
+  @@map("project_users")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Categoria (áreas do 5W2H)
+//   Ex.: Site, Rede Social, Vendas, etc.
+// ─────────────────────────────────────────
+model Category {
+  id          String    @id @default(uuid())
+  name        String                    // Nome da categoria
+  description String?
+  color       String?   @default("#F5C500") // cor para UI
+  projectId   String    @map("project_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  activities  Activity[]
+
+  @@map("categories")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Atividade (núcleo do 5W2H)
+// ─────────────────────────────────────────
+model Activity {
+  id           String         @id @default(uuid())
+
+  // Identificador legível tipo "1.3"
+  code         String
+
+  // ── 5W2H ──────────────────────────────
+  what         String                    // O quê (descrição da tarefa)
+  why          String                    // Por quê (motivo/benefício)
+  who          String                    // Quem (responsável)
+  where        String                    // Onde (local/modo)
+  how          String                    // Como (método)
+  howMuch      Decimal?  @map("how_much") // Quanto (custo estimado)
+  whenStart    DateTime? @map("when_start") // Data de início
+  whenEnd      DateTime? @map("when_end")   // Data de fim/prazo
+  // ──────────────────────────────────────
+
+  status       ActivityStatus @default(PLANNED)
+  risk         String?                   // Risco se não concluída
+  notes        String?                   // Observações adicionais
+
+  categoryId   String    @map("category_id")
+  responsibleId String?  @map("responsible_id") // FK para User
+
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  // Relações
+  category     Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  responsible  User?          @relation(fields: [responsibleId], references: [id])
+  notifications Notification[]
+
+  @@map("activities")
+}
+
+// ─────────────────────────────────────────
+// ENTIDADE: Notificação
+// ─────────────────────────────────────────
+model Notification {
+  id           String           @id @default(uuid())
+  type         NotificationType
+  title        String
+  message      String
+  isRead       Boolean          @default(false) @map("is_read")
+  sentAt       DateTime?        @map("sent_at")  // quando foi enviado por email/push
+  createdAt    DateTime         @default(now()) @map("created_at")
+
+  // Destinatário
+  userId       String           @map("user_id")
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Remetente (sistema ou colaborador)
+  sentById     String?          @map("sent_by_id")
+  sentBy       User?            @relation("SentNotifications", fields: [sentById], references: [id])
+
+  // Atividade relacionada (opcional)
+  activityId   String?          @map("activity_id")
+  activity     Activity?        @relation(fields: [activityId], references: [id], onDelete: SetNull)
+
+  @@map("notifications")
+}

@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # ── PostgreSQL ──────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: genius_db
+    environment:
+      POSTGRES_DB:       genius_5w2h
+      POSTGRES_USER:     genius
+      POSTGRES_PASSWORD: genius@123
+    ports:
+      - "5432:5432"
+    volumes:
+      - genius_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U genius -d genius_5w2h"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend ─────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: genius_api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL:        "postgresql://genius:genius@123@postgres:5432/genius_5w2h?schema=public"
+      JWT_SECRET:          "genius-jwt-secret-troque-em-producao"
+      JWT_EXPIRES_IN:      "7d"
+      PORT:                3001
+      NODE_ENV:            production
+      FRONTEND_URL:        "http://localhost:5173"
+      SMTP_HOST:           ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT:           ${SMTP_PORT:-587}
+      SMTP_USER:           ${SMTP_USER:-}
+      SMTP_PASS:           ${SMTP_PASS:-}
+      SMTP_FROM:           "Genius Consultoria <noreply@geniusconsultoria.com.br>"
+      NOTIFICATION_DAYS_BEFORE: 3
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+  # ── Frontend ─────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: genius_web
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+
+volumes:
+  genius_pgdata:

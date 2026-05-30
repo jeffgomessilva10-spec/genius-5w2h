@@ -1,0 +1,188 @@
+/* src/styles/globals.css – Design System Genius Consultoria */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;900&display=swap');
+
+/* ── Variáveis de marca ─────────────────────────────── */
+:root {
+  --genius-gold:        #F5C500;
+  --genius-gold-dark:   #D4A800;
+  --genius-gold-light:  #FFD740;
+  --genius-black:       #0D0D0D;
+  --genius-dark:        #141414;
+  --genius-surface:     #1C1C1C;
+  --genius-surface-2:   #242424;
+  --genius-border:      #2E2E2E;
+  --genius-text:        #F0F0F0;
+  --genius-text-muted:  #888888;
+  --genius-text-subtle: #555555;
+
+  /* Status */
+  --status-planned:     #6B7280;
+  --status-progress:    #3B82F6;
+  --status-delayed:     #EF4444;
+  --status-done:        #10B981;
+
+  /* Espaçamentos */
+  --radius-sm:  6px;
+  --radius:     10px;
+  --radius-lg:  16px;
+  --radius-xl:  24px;
+}
+
+/* ── Reset ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--genius-black);
+  color: var(--genius-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar customizada */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--genius-dark); }
+::-webkit-scrollbar-thumb { background: var(--genius-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--genius-gold); }
+
+/* ── Tipografia ─────────────────────────────────────── */
+h1, h2, h3 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; line-height: 1.1; }
+h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
+h2 { font-size: clamp(1.5rem, 3vw, 2.5rem); }
+h3 { font-size: clamp(1.2rem, 2vw, 1.8rem); }
+
+a { color: var(--genius-gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+/* ── Componentes base ───────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--genius-gold);
+  color: var(--genius-black);
+}
+.btn-primary:hover { background: var(--genius-gold-light); transform: translateY(-1px); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--genius-text-muted);
+  border: 1px solid var(--genius-border);
+}
+.btn-ghost:hover { border-color: var(--genius-gold); color: var(--genius-gold); }
+
+.btn-danger {
+  background: #EF4444;
+  color: white;
+}
+.btn-danger:hover { background: #DC2626; }
+
+.btn-sm { padding: 6px 14px; font-size: 0.82rem; }
+
+/* Cards */
+.card {
+  background: var(--genius-surface);
+  border: 1px solid var(--genius-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--genius-border); }
+
+/* Input */
+.input {
+  width: 100%;
+  background: var(--genius-surface-2);
+  border: 1px solid var(--genius-border);
+  border-radius: var(--radius);
+  color: var(--genius-text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input:focus { border-color: var(--genius-gold); }
+.input::placeholder { color: var(--genius-text-subtle); }
+
+/* Badge de status */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.badge-planned    { background: rgba(107,114,128,0.2); color: #9CA3AF; }
+.badge-progress   { background: rgba(59,130,246,0.2);  color: #60A5FA; }
+.badge-delayed    { background: rgba(239,68,68,0.2);   color: #F87171; }
+.badge-done       { background: rgba(16,185,129,0.2);  color: #34D399; }
+
+/* ── Animações ──────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade  { animation: fadeIn  0.3s ease forwards; }
+.animate-slide { animation: slideIn 0.3s ease forwards; }
+
+/* ── Utilitários ───────────────────────────────────── */
+.text-gold   { color: var(--genius-gold); }
+.text-muted  { color: var(--genius-text-muted); }
+.text-danger { color: #EF4444; }
+.text-success{ color: #10B981; }
+
+.flex        { display: flex; }
+.flex-col    { flex-direction: column; }
+.items-center{ align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+
+.w-full { width: 100%; }
+.mt-1 { margin-top: 4px; }
+.mt-2 { margin-top: 8px; }
+.mt-4 { margin-top: 16px; }
+.mt-6 { margin-top: 24px; }
+
+/* Separador */
+.divider { height: 1px; background: var(--genius-border); margin: 16px 0; }
+
+/* Linha do tempo – barra de progresso */
+.progress-bar {
+  height: 6px;
+  background: var(--genius-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--genius-gold);
+  transition: width 0.5s ease;
+}
