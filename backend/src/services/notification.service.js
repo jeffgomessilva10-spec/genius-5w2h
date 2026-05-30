@@ -1,16 +1,9 @@
 // src/services/notification.service.js
-const nodemailer = require('nodemailer');
 const prisma = require('../prisma/client');
 
-// ── Transporter de e-mail ────────────────────────
-const smtpPort = parseInt(process.env.SMTP_PORT || '465');
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: smtpPort,
-  secure: smtpPort === 465,
-  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  tls: { rejectUnauthorized: false },
-});
+// ── E-mail via Resend ────────────────────────────
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ── WhatsApp via Twilio ──────────────────────────
 async function sendWhatsApp(phone, message) {
@@ -41,15 +34,16 @@ async function sendNotification({ userId, type, title, message, activityId, sent
   const { email, name, phone } = notification.user;
   const whatsappMsg = `🔔 *Genius Consultoria*\n*${title}*\n\n${message}`;
 
-  // E-mail
+  // E-mail via Resend
   try {
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || 'noreply@geniusconsultoria.com.br',
+    await resend.emails.send({
+      from: 'Genius Consultoria <onboarding@resend.dev>',
       to: email,
       subject: `[Genius Consultoria] ${title}`,
       html: buildEmailHtml(name, title, message),
     });
     await prisma.notification.update({ where: { id: notification.id }, data: { sentAt: new Date() } });
+    console.log(`[Email] Enviado para ${email}`);
   } catch (err) {
     console.error('[Email] Erro ao enviar:', err.message);
   }
