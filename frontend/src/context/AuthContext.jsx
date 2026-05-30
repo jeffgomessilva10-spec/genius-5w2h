@@ -10,10 +10,19 @@ export function AuthProvider({ children }) {
 
   // Hidrata o estado do usuário no carregamento
   useEffect(() => {
-    const stored = localStorage.getItem('genius_user');
-    const token  = localStorage.getItem('genius_token');
-    if (stored && token) {
-      setUser(JSON.parse(stored));
+    try {
+      const stored = localStorage.getItem('genius_user');
+      const token  = localStorage.getItem('genius_token');
+      if (stored && stored !== 'undefined' && token) {
+        setUser(JSON.parse(stored));
+      } else {
+        // Limpa dados corrompidos
+        localStorage.removeItem('genius_user');
+        localStorage.removeItem('genius_token');
+      }
+    } catch {
+      localStorage.removeItem('genius_user');
+      localStorage.removeItem('genius_token');
     }
     setLoading(false);
   }, []);
