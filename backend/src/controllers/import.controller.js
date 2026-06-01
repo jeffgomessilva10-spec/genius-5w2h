@@ -8,6 +8,27 @@ const { parseExcel } = require('../services/excel.service');
 const { audit } = require('../services/audit.service');
 
 /**
+ * POST /api/import/preview
+ * Retorna preview do que seria importado SEM salvar no banco.
+ */
+async function previewImport(req, res, next) {
+  try {
+    if (!req.file) return res.status(422).json({ error: 'Arquivo não enviado.' });
+    const { projectName: pn } = req.body;
+    const result = parseExcel(req.file.buffer, pn?.trim() || req.file.originalname.replace(/\.[^.]+$/, ''));
+    res.json({
+      projectName: result.projectName,
+      sheetName:   result.sheetName,
+      categories:  result.categories.length,
+      activities:  result.activities.length,
+      preview:     result.preview,
+      categoriesList: result.categories,
+      activitiesSample: result.activities.slice(0, 5),
+    });
+  } catch (err) { next(err); }
+}
+
+/**
  * POST /api/import/project
  * Body (multipart): file (Excel), projectName (string, opcional)
  */
@@ -162,4 +183,4 @@ function getTemplate(req, res) {
   });
 }
 
-module.exports = { importProject, getTemplate };
+module.exports = { importProject, previewImport, getTemplate };

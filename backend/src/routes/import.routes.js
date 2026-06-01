@@ -6,7 +6,7 @@
 const { Router } = require('express');
 const multer = require('multer');
 const { authenticate, authorize } = require('../middleware/auth.middleware');
-const { importProject, getTemplate } = require('../controllers/import.controller');
+const { importProject, previewImport, getTemplate } = require('../controllers/import.controller');
 
 const router = Router();
 
@@ -35,7 +35,8 @@ const upload = multer({
 
 router.use(authenticate);
 
-router.get('/template',                      getTemplate);
-router.post('/project', authorize('ADMIN', 'COLLABORATOR'), upload.single('file'), importProject);
+router.get('/template',                       getTemplate);
+router.post('/preview',  authorize('ADMIN', 'COLLABORATOR'), upload.single('file'), previewImport);
+router.post('/project',  authorize('ADMIN', 'COLLABORATOR'), upload.single('file'), importProject);
 
 module.exports = router;
