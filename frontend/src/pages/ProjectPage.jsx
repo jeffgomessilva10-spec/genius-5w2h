@@ -120,6 +120,7 @@ export default function ProjectPage() {
   );
 
   return (
+    <>
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
 
@@ -419,5 +420,6 @@ export default function ProjectPage() {
         )}
       </div>
     )}
+    </>
   );
 }
