@@ -3,9 +3,42 @@ const { Router } = require('express');
 const { body } = require('express-validator');
 const ctrl = require('../controllers/activity.controller');
 const { authenticate, authorize } = require('../middleware/auth.middleware');
+const prisma = require('../prisma/client');
 
 const router = Router();
 router.use(authenticate);
+
+// GET /api/activities/next-code?categoryId=xxx — próximo código automático
+router.get('/next-code', async (req, res, next) => {
+  try {
+    const { categoryId } = req.query;
+    if (!categoryId) return res.status(422).json({ error: 'categoryId obrigatório' });
+
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId },
+      include: {
+        activities: { select: { code: true } },
+        project: { include: { categories: { include: { _count: { select: { activities: true } } } } } },
+      },
+    });
+    if (!category) return res.status(404).json({ error: 'Categoria não encontrada' });
+
+    const allCats = category.project.categories;
+    const catIndex = allCats.findIndex(c => c.id === categoryId) + 1;
+    const prefix = String(catIndex);
+
+    let maxSub = 0;
+    category.activities.forEach(a => {
+      const parts = (a.code || '').split('.');
+      if (parts[0] === prefix && parts.length >= 2) {
+        const sub = parseInt(parts[1]) || 0;
+        if (sub > maxSub) maxSub = sub;
+      }
+    });
+
+    res.json({ code: `${prefix}.${maxSub + 1}`, prefix, nextSub: maxSub + 1 });
+  } catch (err) { next(err); }
+});
 
 router.get('/', ctrl.listActivities);
 router.get('/stats/:projectId', ctrl.getProjectStats);

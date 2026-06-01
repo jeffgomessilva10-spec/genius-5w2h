@@ -16,6 +16,16 @@ export default function OKRPage() {
   const [form, setForm] = useState({ projectId: '', title: '', description: '', targetDate: '' });
   const [krForms, setKrForms] = useState({});
 
+  // Carrega projetos separadamente ao montar (garante que o dropdown tenha opções)
+  useEffect(() => {
+    projectsAPI.list().then(r => {
+      setProjects(r.data.projects);
+      if (r.data.projects[0] && !form.projectId) {
+        setForm(f => ({ ...f, projectId: r.data.projects[0].id }));
+      }
+    }).catch(console.error);
+  }, []);
+
   useEffect(() => { loadAll(); }, [projFilter]);
 
   async function loadAll() {

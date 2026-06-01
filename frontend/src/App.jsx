@@ -21,7 +21,8 @@ const OperationalDashboard = lazy(() => import('./pages/OperationalDashboard'));
 const GovernancePage     = lazy(() => import('./pages/GovernancePage'));
 const AnalyticsPage      = lazy(() => import('./pages/AnalyticsPage'));
 const ProfilePage        = lazy(() => import('./pages/ProfilePage'));
-const ImportPage         = lazy(() => import('./pages/ImportPage'));
+const ImportPage             = lazy(() => import('./pages/ImportPage'));
+const CategorySettingsPage   = lazy(() => import('./pages/CategorySettingsPage'));
 
 const Loading = () => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#F3F4F6' }}>
@@ -88,7 +89,8 @@ export default function App() {
             <Route path="/activities/:id/edit" element={<CollaboratorRoute><ActivityForm /></CollaboratorRoute>} />
             <Route path="/client"     element={<PrivateRoute><ClientDashboard /></PrivateRoute>} />
             <Route path="/profile"    element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-            <Route path="/import"     element={<CollaboratorRoute><ImportPage /></CollaboratorRoute>} />
+            <Route path="/import"           element={<CollaboratorRoute><ImportPage /></CollaboratorRoute>} />
+            <Route path="/category-settings" element={<CollaboratorRoute><CategorySettingsPage /></CollaboratorRoute>} />
             <Route path="*"           element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

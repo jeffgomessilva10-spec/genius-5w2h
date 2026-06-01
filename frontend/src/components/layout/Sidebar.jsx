@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, FolderKanban, Users, LogOut, GanttChartSquare, Menu, X, FileText, Target, RefreshCw, TrendingUp, ShieldCheck, BarChart3, Upload } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Users, LogOut, GanttChartSquare, Menu, X, FileText, Target, RefreshCw, TrendingUp, ShieldCheck, BarChart3, Upload, Settings } from 'lucide-react';
 import NotificationBell from '../ui/NotificationBell';
 import { useState, useEffect } from 'react';
 
@@ -30,7 +30,10 @@ export default function Sidebar() {
         { to: '/governance', icon: ShieldCheck,      label: 'Governança'  },
         ...(isExecutive ? [{ to: '/analytics', icon: BarChart3, label: 'Analytics' }] : []),
         { to: '/import', icon: Upload, label: 'Importar' },
-        ...(isAdmin ? [{ to: '/users', icon: Users, label: 'Usuários' }] : []),
+        ...(isAdmin ? [
+          { to: '/users',              icon: Users,      label: 'Usuários'   },
+          { to: '/category-settings',  icon: Settings,   label: 'Categorias' },
+        ] : []),
       ]
     : [{ to: '/client', icon: LayoutDashboard, label: 'Meus Projetos' }];
 

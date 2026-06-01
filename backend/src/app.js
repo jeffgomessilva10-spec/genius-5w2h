@@ -34,7 +34,8 @@ const dashboardRoutes    = require('./routes/dashboard.routes');
 const governanceRoutes   = require('./routes/governance.routes');
 const analyticsRoutes    = require('./routes/analytics.routes');
 const ganttRoutes        = require('./routes/gantt.routes');
-const importRoutes       = require('./routes/import.routes');
+const importRoutes           = require('./routes/import.routes');
+const classificationRoutes   = require('./routes/classification.routes');
 
 const app = express();
 
@@ -135,6 +136,7 @@ app.use('/api/governance',     governanceRoutes);
 app.use('/api/analytics',     analyticsRoutes);
 app.use('/api/gantt',         ganttRoutes);
 app.use('/api/import',        importRoutes);
+app.use('/api/classifications', classificationRoutes);
 
 // ── Handler de erros global ─────────────────────────────
 app.use((err, req, res, next) => {

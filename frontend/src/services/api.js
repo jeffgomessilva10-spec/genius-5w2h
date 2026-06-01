@@ -116,12 +116,24 @@ export const okrAPI = {
 };
 
 export const pdcaAPI = {
-  list:          (params) => api.get('/pdca', { params }),
-  createReview:  (data)   => api.post('/pdca/reviews', data),
-  deleteReview:  (id)     => api.delete(`/pdca/reviews/${id}`),
-  createLesson:  (data)   => api.post('/pdca/lessons', data),
-  deleteLesson:  (id)     => api.delete(`/pdca/lessons/${id}`),
+  list:          (params)         => api.get('/pdca', { params }),
+  createReview:  (data)           => api.post('/pdca/reviews', data),
+  moveReview:    (id, data)       => api.patch(`/pdca/reviews/${id}/phase`, data),
+  deleteReview:  (id)             => api.delete(`/pdca/reviews/${id}`),
+  createLesson:  (data)           => api.post('/pdca/lessons', data),
+  deleteLesson:  (id)             => api.delete(`/pdca/lessons/${id}`),
 };
+
+export const classificationAPI = {
+  list:   (params) => api.get('/classifications', { params }),
+  create: (data)   => api.post('/classifications', data),
+  update: (id, d)  => api.put(`/classifications/${id}`, d),
+  delete: (id)     => api.delete(`/classifications/${id}`),
+  seed:   ()       => api.post('/classifications/seed'),
+};
+
+export const activityNextCode = (categoryId) =>
+  api.get('/activities/next-code', { params: { categoryId } });
 
 export const aiAPI = {
   validate: (activity)             => api.post('/ai/validate', activity),
