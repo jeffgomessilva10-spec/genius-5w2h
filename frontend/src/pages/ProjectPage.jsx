@@ -25,6 +25,18 @@ const STATUS_COLORS = {
   DONE:        '#10B981',
 };
 
+const STATUS_LABEL = {
+  PLANNED:     'Planejado',
+  IN_PROGRESS: 'Em andamento',
+  DELAYED:     'Atrasado',
+  DONE:        'Finalizado',
+};
+
+function fmtDate(d) {
+  if (!d) return '—';
+  try { return format(new Date(d), 'dd/MM/yyyy', { locale: ptBR }); } catch { return '—'; }
+}
+
 export default function ProjectPage() {
   const { id }             = useParams();
   const { isCollaborator } = useAuth();
@@ -32,9 +44,10 @@ export default function ProjectPage() {
   const [stats,      setStats]      = useState({ stats: [], total: 0 });
   const [activities, setActivities] = useState([]);
   const [loading,    setLoading]    = useState(true);
-  const [view,       setView]       = useState('cards');   // 'cards' | 'timeline'
+  const [view,       setView]       = useState('cards');
   const [catFilter,  setCatFilter]  = useState('');
   const [statFilter, setStatFilter] = useState('');
+  const [tooltip,    setTooltip]    = useState(null); // { act, x, y }
 
   useEffect(() => { loadProject(); }, [id]);
 
@@ -246,20 +259,38 @@ export default function ProjectPage() {
 
                   {/* Barra de tempo */}
                   <div style={{ position: 'relative', height: 56, padding: '0 8px', display: 'flex', alignItems: 'center' }}>
-                    <div style={{
-                      position: 'absolute',
-                      left:  barLeft(act.whenStart),
-                      width: barWidth(act.whenStart, act.whenEnd),
-                      height: 22,
-                      background: STATUS_COLORS[act.status] || 'var(--genius-gold)',
-                      borderRadius: 4,
-                      opacity: 0.85,
-                      transition: 'width 0.3s',
-                      display: 'flex',
-                      alignItems: 'center',
-                      paddingLeft: 8,
-                      overflow: 'hidden',
-                    }}>
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`${act.code} — ${act.what}`}
+                      style={{
+                        position: 'absolute',
+                        left:  barLeft(act.whenStart),
+                        width: barWidth(act.whenStart, act.whenEnd),
+                        height: 26,
+                        background: STATUS_COLORS[act.status] || 'var(--genius-gold)',
+                        borderRadius: 6,
+                        opacity: 0.85,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        paddingLeft: 8,
+                        overflow: 'hidden',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.15)',
+                        transition: 'opacity 0.15s, transform 0.1s',
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.opacity = '1';
+                        e.currentTarget.style.transform = 'scaleY(1.1)';
+                        setTooltip({ act, x: e.clientX, y: e.clientY });
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.opacity = '0.85';
+                        e.currentTarget.style.transform = 'scaleY(1)';
+                        setTooltip(null);
+                      }}
+                      onMouseMove={e => setTooltip(t => t ? { ...t, x: e.clientX, y: e.clientY } : null)}
+                    >
                       <span style={{ fontSize: '0.7rem', color: 'white', fontWeight: 600, whiteSpace: 'nowrap' }}>
                         {act.who}
                       </span>
@@ -284,5 +315,109 @@ export default function ProjectPage() {
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
+
+    {/* Tooltip — aparece ao passar o mouse na barra */}
+    {tooltip && (
+      <div
+        role="tooltip"
+        style={{
+          position: 'fixed',
+          left: Math.min(tooltip.x + 14, window.innerWidth - 290),
+          top:  Math.max(tooltip.y - 10, 10),
+          background: '#111827',
+          color: '#fff',
+          borderRadius: 12,
+          padding: '14px 18px',
+          fontSize: '0.78rem',
+          maxWidth: 280,
+          zIndex: 9999,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+          pointerEvents: 'none',
+          lineHeight: 1.6,
+        }}
+      >
+        {/* Código + título */}
+        <div style={{ fontWeight: 700, fontSize: '0.88rem', marginBottom: 6, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 6 }}>
+          {tooltip.act.code} — {tooltip.act.what}
+        </div>
+
+        {/* Status */}
+        <div style={{ marginBottom: 8 }}>
+          <span style={{
+            display: 'inline-block',
+            background: `${STATUS_COLORS[tooltip.act.status]}33`,
+            color: STATUS_COLORS[tooltip.act.status],
+            padding: '2px 9px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700,
+          }}>
+            {STATUS_LABEL[tooltip.act.status] || tooltip.act.status}
+          </span>
+        </div>
+
+        {/* Por quê */}
+        {tooltip.act.why && (
+          <div style={{ marginBottom: 6 }}>
+            <span style={{ color: '#9CA3AF', fontSize: '0.7rem' }}>Por quê: </span>
+            {tooltip.act.why.length > 80 ? tooltip.act.why.slice(0, 80) + '…' : tooltip.act.why}
+          </div>
+        )}
+
+        {/* Datas */}
+        <div style={{ display: 'flex', gap: 12, marginBottom: 4 }}>
+          {tooltip.act.whenStart && (
+            <div>
+              <span style={{ color: '#9CA3AF', fontSize: '0.68rem' }}>Início: </span>
+              <strong>{fmtDate(tooltip.act.whenStart)}</strong>
+            </div>
+          )}
+          {tooltip.act.whenEnd && (
+            <div>
+              <span style={{ color: '#9CA3AF', fontSize: '0.68rem' }}>Prazo: </span>
+              <strong>{fmtDate(tooltip.act.whenEnd)}</strong>
+            </div>
+          )}
+        </div>
+
+        {/* Responsável */}
+        {tooltip.act.who && (
+          <div style={{ marginBottom: 4 }}>
+            <span style={{ color: '#9CA3AF', fontSize: '0.68rem' }}>👤 </span>
+            {tooltip.act.who}
+            {tooltip.act.responsible?.name && tooltip.act.responsible.name !== tooltip.act.who && (
+              <span style={{ color: '#6B7280' }}> ({tooltip.act.responsible.name})</span>
+            )}
+          </div>
+        )}
+
+        {/* Onde */}
+        {tooltip.act.where && (
+          <div style={{ marginBottom: 4 }}>
+            <span style={{ color: '#9CA3AF', fontSize: '0.68rem' }}>📍 </span>
+            {tooltip.act.where}
+          </div>
+        )}
+
+        {/* Custo */}
+        {tooltip.act.howMuch > 0 && (
+          <div style={{ marginBottom: 4, color: '#86EFAC' }}>
+            <span style={{ color: '#9CA3AF', fontSize: '0.68rem' }}>💰 </span>
+            R$ {Number(tooltip.act.howMuch).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          </div>
+        )}
+
+        {/* Risco */}
+        {tooltip.act.risk && (
+          <div style={{ marginTop: 6, padding: '5px 8px', background: 'rgba(239,68,68,0.12)', borderRadius: 6, fontSize: '0.72rem', color: '#FCA5A5' }}>
+            ⚠️ {tooltip.act.risk.length > 80 ? tooltip.act.risk.slice(0, 80) + '…' : tooltip.act.risk}
+          </div>
+        )}
+
+        {/* Notas */}
+        {tooltip.act.notes && (
+          <div style={{ marginTop: 6, color: '#9CA3AF', fontSize: '0.72rem', fontStyle: 'italic' }}>
+            {tooltip.act.notes.length > 60 ? tooltip.act.notes.slice(0, 60) + '…' : tooltip.act.notes}
+          </div>
+        )}
+      </div>
+    )}
   );
 }
