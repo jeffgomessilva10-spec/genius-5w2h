@@ -173,12 +173,10 @@ model Activity {
   status        ActivityStatus @default(PLANNED)
   notes         String?
 
-  // ── Classificações hierárquicas ────────
+  // ── Classificações hierárquicas (simples, sem FK constraint) ────
   strategicCatId   String? @map("strategic_cat_id")
   leanObjectiveId  String? @map("lean_objective_id")
   areaId           String? @map("area_id")
-
-  strategicCat     ActivityClassification? @relation("ActivityClassification", fields: [strategicCatId], references: [id])
 
   // ── Financeiro ampliado ────────
   actualCost    Decimal? @map("actual_cost")     // Custo realizado
@@ -364,8 +362,6 @@ model ActivityClassification {
   isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-
-  activities  Activity[] @relation("ActivityClassification")
 
   @@unique([type, name])
   @@map("activity_classifications")
