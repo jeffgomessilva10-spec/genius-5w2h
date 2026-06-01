@@ -40,14 +40,28 @@ export default function ProjectPage() {
 
   async function loadProject() {
     try {
-      const [projRes, statsRes, actsRes] = await Promise.all([
+      const [projRes, statsRes] = await Promise.all([
         projectsAPI.get(id),
         activitiesAPI.stats(id),
-        activitiesAPI.list({}),
       ]);
-      setProject(projRes.data.project);
+      const project = projRes.data.project;
+      setProject(project);
       setStats(statsRes.data);
-      setActivities(actsRes.data.activities);
+
+      // Busca atividades APENAS deste projeto filtrando por categoryId de cada categoria
+      const catIds = (project.categories || []).map(c => c.id);
+      if (catIds.length > 0) {
+        const results = await Promise.all(
+          catIds.map(cid =>
+            activitiesAPI.list({ categoryId: cid })
+              .then(r => r.data.activities)
+              .catch(() => [])
+          )
+        );
+        setActivities(results.flat());
+      } else {
+        setActivities([]);
+      }
     } catch (err) {
       console.error(err);
     } finally {
